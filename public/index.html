@@ -353,7 +353,7 @@ const TOOLS={
   fan:{name:'พัดใบตาล',desc:'โบกล้างทั้งแถวและคอลัมน์',price:100,verb:'โบก'},
   lantern:{name:'โคมวิเศษ',desc:'เสกขนมธรรมดา 3 ชิ้นให้เป็นขนมพิเศษ',price:120},
   shuffle:{name:'สับขนม',desc:'สลับตำแหน่งขนมทั้งกระดาน',price:40},
-  moves:{name:'+3 ตาเดิน',desc:'ใช้ได้ตอนตาเดินหมด',price:80}
+  moves:{name:'+5 ตาเดิน',desc:'ใช้ได้ตอนตาเดินหมด',price:80}
 };
 
 /* Thai tarot */
@@ -849,12 +849,12 @@ function outOfMoves(){
   over=true;
   const miss=[];if(score<target)miss.push('ขาดอีก <b>'+(target-score).toLocaleString('th-TH')+'</b> คะแนน');if(iceLeft())miss.push('น้ำแข็งเหลือ <b>'+iceLeft()+'</b> ช่อง');
   const btns=[];
-  if(save.boosters.moves>0)btns.push({label:'ใช้ +3 ตาเดิน (มี '+save.boosters.moves+')',primary:true,fn:()=>{save.boosters.moves--;extraMoves()}});
-  else btns.push({label:'ซื้อ +3 ตาเดิน · 80 เหรียญ',primary:true,disabled:save.coins<80,fn:()=>{save.coins-=80;sfx('coin');extraMoves()}});
+  if(save.boosters.moves>0)btns.push({label:'ใช้ +5 ตาเดิน (มี '+save.boosters.moves+')',primary:true,fn:()=>{save.boosters.moves--;extraMoves()}});
+  else btns.push({label:'ซื้อ +5 ตาเดิน · 80 เหรียญ',primary:true,disabled:save.coins<80,fn:()=>{save.coins-=80;sfx('coin');extraMoves()}});
   btns.push({label:'ยอมแพ้ (เสียหัวใจ 1 ดวง)',fn:failLevel});
   modal({name:'outofmoves',title:'ตาเดินหมดแล้ว',html:'<p>'+miss.join('<br>')+'</p>',buttons:btns});
 }
-function extraMoves(){moves+=3;over=false;updateHUD();saveRun();toast('ได้ตาเดินเพิ่ม 3 ตา')}
+function extraMoves(){moves+=5;over=false;updateHUD();saveRun();toast('ได้ตาเดินเพิ่ม 5 ตา')}
 function failLevel(){
   over=true;loseHeart();sfx('lose');updateHUD();
   const btns=save.hearts>0?[{label:'ลองอีกครั้ง',primary:true,fn:()=>startLevel(cur)},{label:'กลับแผนที่',fn:()=>showMap()}]:[{label:'กลับแผนที่',primary:true,fn:()=>{showMap();showNoHearts()}}];
