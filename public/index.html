@@ -6,7 +6,12 @@
 <meta name="theme-color" content="#c9f2c7">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<style>body{margin:0;font-size:14px}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<style>body{margin:0;font-size:14px}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}.goals{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.goals .gc{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.72);border:1.5px solid var(--line);color:var(--cream)}
+.goals .gc i{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.25)}
+.goals .gc b{color:var(--accent)}
+.goals .gc.ok{opacity:.7;border-color:#35a854}
+</style>
 </head>
 <body>
 <title>ตลาดขนมหวาน</title>
@@ -314,9 +319,10 @@ section{gap:8px}
     </div>
     <div class="stats">
       <div>
-        <div class="label">คะแนน / เป้าหมาย · <span id="shapeName">กระดานสี่เหลี่ยม</span></div>
+        <div class="label"><span id="scoreLbl">คะแนน / เป้าหมาย</span> · <span id="shapeName">กระดานสี่เหลี่ยม</span></div>
         <div class="score"><span id="score">0</span> <small>/ <span id="target">0</span></small></div>
         <div class="bar"><i id="bar"></i></div>
+        <div class="goals" id="goalRow" hidden></div>
         <div class="ice" id="iceRow" hidden>ทุบน้ำแข็งให้หมด · เหลือ <b id="iceN">0</b> ช่อง</div>
       </div>
       <div class="moves" id="movesBox"><div class="label">ตาเดิน</div><div class="score" id="moves">0</div></div>
@@ -372,41 +378,52 @@ section{gap:8px}
 <script>
 (()=>{
 /*BUILD_START*/const BUILD={
- "ver": "01.01.0001",
+ "ver": "01.02.0001",
  "log": [
+  {
+   "v": "01.02.0001",
+   "d": "2026-10-31",
+   "items": [
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e20\u0e32\u0e23\u0e01\u0e34\u0e08\u0e1c\u0e48\u0e32\u0e19\u0e14\u0e48\u0e32\u0e19\u0e41\u0e1a\u0e1a\u0e2a\u0e38\u0e48\u0e21\u0e15\u0e32\u0e21\u0e40\u0e25\u0e02\u0e14\u0e48\u0e32\u0e19 (\u0e40\u0e25\u0e48\u0e19\u0e0b\u0e49\u0e33\u0e44\u0e14\u0e49\u0e40\u0e1b\u0e49\u0e32\u0e40\u0e14\u0e34\u0e21): \u0e40\u0e01\u0e47\u0e1a\u0e02\u0e19\u0e21\u0e15\u0e32\u0e21\u0e23\u0e2a, \u0e2a\u0e23\u0e49\u0e32\u0e07\u0e02\u0e19\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29 (\u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19/\u0e2b\u0e48\u0e2d\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14/\u0e1b\u0e25\u0e32/\u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a), \u0e2a\u0e48\u0e07\u0e01\u0e23\u0e30\u0e17\u0e07\u0e25\u0e07\u0e02\u0e2d\u0e1a\u0e25\u0e48\u0e32\u0e07, \u0e41\u0e25\u0e30\u0e41\u0e1a\u0e1a\u0e1c\u0e2a\u0e21 \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e0a\u0e34\u0e1b\u0e04\u0e27\u0e32\u0e21\u0e04\u0e37\u0e1a\u0e2b\u0e19\u0e49\u0e32\u0e43\u0e15\u0e49\u0e04\u0e30\u0e41\u0e19\u0e19",
+    "\u0e14\u0e48\u0e32\u0e19\u0e08\u0e31\u0e1a\u0e40\u0e27\u0e25\u0e32: \u0e44\u0e21\u0e48\u0e08\u0e33\u0e01\u0e31\u0e14\u0e15\u0e32\u0e40\u0e14\u0e34\u0e19 \u0e21\u0e35\u0e19\u0e32\u0e2c\u0e34\u0e01\u0e32\u0e19\u0e31\u0e1a\u0e16\u0e2d\u0e22\u0e2b\u0e25\u0e31\u0e07 \u0e40\u0e27\u0e25\u0e32\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e37\u0e2d\u0e41\u0e1b\u0e25\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e42\u0e1a\u0e19\u0e31\u0e2a \u0e43\u0e0a\u0e49 +5 \u0e15\u0e32\u0e40\u0e14\u0e34\u0e19\u0e41\u0e25\u0e01 +15 \u0e27\u0e34\u0e19\u0e32\u0e17\u0e35\u0e44\u0e14\u0e49",
+    "\u0e14\u0e48\u0e32\u0e19\u0e04\u0e2d\u0e21\u0e42\u0e1a: \u0e17\u0e33\u0e04\u0e2d\u0e21\u0e42\u0e1a\u0e15\u0e48\u0e2d\u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e43\u0e2b\u0e49\u0e16\u0e36\u0e07\u0e08\u0e33\u0e19\u0e27\u0e19\u0e17\u0e2d\u0e14\u0e17\u0e35\u0e48\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e43\u0e19\u0e15\u0e32\u0e40\u0e14\u0e35\u0e22\u0e27",
+    "\u0e14\u0e48\u0e32\u0e19\u0e17\u0e35\u0e48\u0e44\u0e21\u0e48\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e04\u0e30\u0e41\u0e19\u0e19\u0e43\u0e0a\u0e49 \u0e40\u0e1b\u0e49\u0e32\u0e14\u0e32\u0e27 (\u0e04\u0e23\u0e36\u0e48\u0e07\u0e2b\u0e19\u0e36\u0e48\u0e07\u0e02\u0e2d\u0e07\u0e40\u0e1b\u0e49\u0e32\u0e1b\u0e01\u0e15\u0e34) \u0e04\u0e34\u0e14\u0e14\u0e32\u0e27\u0e41\u0e17\u0e19 \u0e41\u0e25\u0e30\u0e44\u0e14\u0e49\u0e15\u0e32\u0e40\u0e14\u0e34\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21",
+    "\u0e2b\u0e19\u0e49\u0e32\u0e1e\u0e23\u0e35\u0e27\u0e34\u0e27\u0e14\u0e48\u0e32\u0e19\u0e41\u0e25\u0e30\u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e15\u0e32\u0e40\u0e14\u0e34\u0e19\u0e2b\u0e21\u0e14\u0e41\u0e2a\u0e14\u0e07\u0e40\u0e1b\u0e49\u0e32\u0e2b\u0e21\u0e32\u0e22\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e37\u0e2d \u0e40\u0e1e\u0e34\u0e48\u0e21\u0e2b\u0e31\u0e27\u0e02\u0e49\u0e2d \u0e20\u0e32\u0e23\u0e01\u0e34\u0e08\u0e1c\u0e48\u0e32\u0e19\u0e14\u0e48\u0e32\u0e19 \u0e43\u0e19\u0e04\u0e39\u0e48\u0e21\u0e37\u0e2d"
+   ]
+  },
   {
    "v": "01.01.0001",
    "d": "2026-10-30",
    "items": [
-    "คอมโบขนมพิเศษ 10 แบบ: ลายเส้น+ลายเส้น, ลายเส้น+ระเบิด, ระเบิด+ระเบิด, ลูกชุบ+ลายเส้น, ลูกชุบ+ระเบิด (ระเบิดสองรอบ), ลูกชุบ+ลูกชุบ, ปลา+ปลา, ปลา+ลายเส้น/ระเบิด, ปลา+ลูกชุบ",
-    "เพิ่มปลาตะเพียน: เรียงสี่เหลี่ยม 2×2 ได้ขนมพิเศษที่ว่ายพุ่งไปทำลายเป้าหมาย (เลือกน้ำแข็งก่อน)",
-    "เพิ่มตัวคูณคะแนน ×2 ถึง ×5 เมื่อใช้คอมโบขนมพิเศษ คูณรวมคอมโบต่อเนื่องของตานั้น",
-    "ขนมพิเศษหน้าตาใหม่: ลายเส้นมีลูกศรและแถบแสงวิ่ง, ห่อระเบิดมีรัศมีส้มและเข็มหมุน, ปลาตะเพียนสีตามขนม, ทุกชิ้นมีออร่าเรืองแสง",
-    "เอฟเฟกต์ตอนรวมขนมพิเศษ: ขนมสองชิ้นหลอมรวมหมุนเป็นแสง, ลำแสงหนา, คลื่นกระแทก, สายฟ้าไปหาขนมที่แปลงร่าง, จอสั่น, แฟลชขาว พร้อมเสียงเฉพาะของแต่ละคอมโบ",
-    "ลูกชุบสายรุ้งสลับขนมธรรมดา ล้างเฉพาะสีที่สลับ (แก้ไม่ให้ล้างสีอื่นพ่วงโดยไม่ตั้งใจ)",
-    "เพิ่มเพื่อนต้องให้อีกฝ่ายกดยอมรับ (ส่งคำขอ ตอบรับหรือปฏิเสธได้ในจดหมาย)",
-    "เพิ่มระบบจดหมาย: คำขอเป็นเพื่อน ของขวัญ ข้อความจากระบบ มีเลขแดงบอกของใหม่",
-    "ส่งของขวัญให้เพื่อนได้: หัวใจ เหรียญ 10/25/50 หรือตัวช่วย ส่งได้ 5 ชิ้นต่อเพื่อนต่อวัน ผู้รับกดรับในจดหมาย",
-    "จุดสีเขียวหลังชื่อเพื่อนที่ออนไลน์ (ในรายชื่อ กระดานอันดับ และบนแผนที่)",
-    "เพื่อนที่ตอบรับแล้วแสดงด่านบนแผนที่ (ตัวอักษรย่อ ชื่อ และจุดออนไลน์)",
-    "ขนมมุมโค้งมน ไม่เหลี่ยมทื่อ (ขนมชั้น เยลลี่ เผือก มะม่วง)",
-    "กระดานเล่นเปลี่ยนจากสีขาวเป็นไล่สีตามธีม ช่องเป็นเม็ดหมอนโปร่งแสงมุมโค้ง",
-    "แสดงเลขเวอร์ชันในหน้าเล่นด้วย (ใต้กระดาน) ไม่ใช่แค่หัวเกม"
+    "\u0e04\u0e2d\u0e21\u0e42\u0e1a\u0e02\u0e19\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29 10 \u0e41\u0e1a\u0e1a: \u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19+\u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19, \u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19+\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14, \u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14+\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14, \u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a+\u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19, \u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a+\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14 (\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14\u0e2a\u0e2d\u0e07\u0e23\u0e2d\u0e1a), \u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a+\u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a, \u0e1b\u0e25\u0e32+\u0e1b\u0e25\u0e32, \u0e1b\u0e25\u0e32+\u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19/\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14, \u0e1b\u0e25\u0e32+\u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1b\u0e25\u0e32\u0e15\u0e30\u0e40\u0e1e\u0e35\u0e22\u0e19: \u0e40\u0e23\u0e35\u0e22\u0e07\u0e2a\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e35\u0e48\u0e22\u0e21 2\u00d72 \u0e44\u0e14\u0e49\u0e02\u0e19\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29\u0e17\u0e35\u0e48\u0e27\u0e48\u0e32\u0e22\u0e1e\u0e38\u0e48\u0e07\u0e44\u0e1b\u0e17\u0e33\u0e25\u0e32\u0e22\u0e40\u0e1b\u0e49\u0e32\u0e2b\u0e21\u0e32\u0e22 (\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e19\u0e49\u0e33\u0e41\u0e02\u0e47\u0e07\u0e01\u0e48\u0e2d\u0e19)",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e15\u0e31\u0e27\u0e04\u0e39\u0e13\u0e04\u0e30\u0e41\u0e19\u0e19 \u00d72 \u0e16\u0e36\u0e07 \u00d75 \u0e40\u0e21\u0e37\u0e48\u0e2d\u0e43\u0e0a\u0e49\u0e04\u0e2d\u0e21\u0e42\u0e1a\u0e02\u0e19\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29 \u0e04\u0e39\u0e13\u0e23\u0e27\u0e21\u0e04\u0e2d\u0e21\u0e42\u0e1a\u0e15\u0e48\u0e2d\u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e02\u0e2d\u0e07\u0e15\u0e32\u0e19\u0e31\u0e49\u0e19",
+    "\u0e02\u0e19\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29\u0e2b\u0e19\u0e49\u0e32\u0e15\u0e32\u0e43\u0e2b\u0e21\u0e48: \u0e25\u0e32\u0e22\u0e40\u0e2a\u0e49\u0e19\u0e21\u0e35\u0e25\u0e39\u0e01\u0e28\u0e23\u0e41\u0e25\u0e30\u0e41\u0e16\u0e1a\u0e41\u0e2a\u0e07\u0e27\u0e34\u0e48\u0e07, \u0e2b\u0e48\u0e2d\u0e23\u0e30\u0e40\u0e1a\u0e34\u0e14\u0e21\u0e35\u0e23\u0e31\u0e28\u0e21\u0e35\u0e2a\u0e49\u0e21\u0e41\u0e25\u0e30\u0e40\u0e02\u0e47\u0e21\u0e2b\u0e21\u0e38\u0e19, \u0e1b\u0e25\u0e32\u0e15\u0e30\u0e40\u0e1e\u0e35\u0e22\u0e19\u0e2a\u0e35\u0e15\u0e32\u0e21\u0e02\u0e19\u0e21, \u0e17\u0e38\u0e01\u0e0a\u0e34\u0e49\u0e19\u0e21\u0e35\u0e2d\u0e2d\u0e23\u0e48\u0e32\u0e40\u0e23\u0e37\u0e2d\u0e07\u0e41\u0e2a\u0e07",
+    "\u0e40\u0e2d\u0e1f\u0e40\u0e1f\u0e01\u0e15\u0e4c\u0e15\u0e2d\u0e19\u0e23\u0e27\u0e21\u0e02\u0e19\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29: \u0e02\u0e19\u0e21\u0e2a\u0e2d\u0e07\u0e0a\u0e34\u0e49\u0e19\u0e2b\u0e25\u0e2d\u0e21\u0e23\u0e27\u0e21\u0e2b\u0e21\u0e38\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e41\u0e2a\u0e07, \u0e25\u0e33\u0e41\u0e2a\u0e07\u0e2b\u0e19\u0e32, \u0e04\u0e25\u0e37\u0e48\u0e19\u0e01\u0e23\u0e30\u0e41\u0e17\u0e01, \u0e2a\u0e32\u0e22\u0e1f\u0e49\u0e32\u0e44\u0e1b\u0e2b\u0e32\u0e02\u0e19\u0e21\u0e17\u0e35\u0e48\u0e41\u0e1b\u0e25\u0e07\u0e23\u0e48\u0e32\u0e07, \u0e08\u0e2d\u0e2a\u0e31\u0e48\u0e19, \u0e41\u0e1f\u0e25\u0e0a\u0e02\u0e32\u0e27 \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e07\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e02\u0e2d\u0e07\u0e41\u0e15\u0e48\u0e25\u0e30\u0e04\u0e2d\u0e21\u0e42\u0e1a",
+    "\u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a\u0e2a\u0e32\u0e22\u0e23\u0e38\u0e49\u0e07\u0e2a\u0e25\u0e31\u0e1a\u0e02\u0e19\u0e21\u0e18\u0e23\u0e23\u0e21\u0e14\u0e32 \u0e25\u0e49\u0e32\u0e07\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e2a\u0e35\u0e17\u0e35\u0e48\u0e2a\u0e25\u0e31\u0e1a (\u0e41\u0e01\u0e49\u0e44\u0e21\u0e48\u0e43\u0e2b\u0e49\u0e25\u0e49\u0e32\u0e07\u0e2a\u0e35\u0e2d\u0e37\u0e48\u0e19\u0e1e\u0e48\u0e27\u0e07\u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e15\u0e31\u0e49\u0e07\u0e43\u0e08)",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e15\u0e49\u0e2d\u0e07\u0e43\u0e2b\u0e49\u0e2d\u0e35\u0e01\u0e1d\u0e48\u0e32\u0e22\u0e01\u0e14\u0e22\u0e2d\u0e21\u0e23\u0e31\u0e1a (\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e02\u0e2d \u0e15\u0e2d\u0e1a\u0e23\u0e31\u0e1a\u0e2b\u0e23\u0e37\u0e2d\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e44\u0e14\u0e49\u0e43\u0e19\u0e08\u0e14\u0e2b\u0e21\u0e32\u0e22)",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e23\u0e30\u0e1a\u0e1a\u0e08\u0e14\u0e2b\u0e21\u0e32\u0e22: \u0e04\u0e33\u0e02\u0e2d\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19 \u0e02\u0e2d\u0e07\u0e02\u0e27\u0e31\u0e0d \u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e08\u0e32\u0e01\u0e23\u0e30\u0e1a\u0e1a \u0e21\u0e35\u0e40\u0e25\u0e02\u0e41\u0e14\u0e07\u0e1a\u0e2d\u0e01\u0e02\u0e2d\u0e07\u0e43\u0e2b\u0e21\u0e48",
+    "\u0e2a\u0e48\u0e07\u0e02\u0e2d\u0e07\u0e02\u0e27\u0e31\u0e0d\u0e43\u0e2b\u0e49\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e14\u0e49: \u0e2b\u0e31\u0e27\u0e43\u0e08 \u0e40\u0e2b\u0e23\u0e35\u0e22\u0e0d 10/25/50 \u0e2b\u0e23\u0e37\u0e2d\u0e15\u0e31\u0e27\u0e0a\u0e48\u0e27\u0e22 \u0e2a\u0e48\u0e07\u0e44\u0e14\u0e49 5 \u0e0a\u0e34\u0e49\u0e19\u0e15\u0e48\u0e2d\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e15\u0e48\u0e2d\u0e27\u0e31\u0e19 \u0e1c\u0e39\u0e49\u0e23\u0e31\u0e1a\u0e01\u0e14\u0e23\u0e31\u0e1a\u0e43\u0e19\u0e08\u0e14\u0e2b\u0e21\u0e32\u0e22",
+    "\u0e08\u0e38\u0e14\u0e2a\u0e35\u0e40\u0e02\u0e35\u0e22\u0e27\u0e2b\u0e25\u0e31\u0e07\u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e17\u0e35\u0e48\u0e2d\u0e2d\u0e19\u0e44\u0e25\u0e19\u0e4c (\u0e43\u0e19\u0e23\u0e32\u0e22\u0e0a\u0e37\u0e48\u0e2d \u0e01\u0e23\u0e30\u0e14\u0e32\u0e19\u0e2d\u0e31\u0e19\u0e14\u0e31\u0e1a \u0e41\u0e25\u0e30\u0e1a\u0e19\u0e41\u0e1c\u0e19\u0e17\u0e35\u0e48)",
+    "\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e17\u0e35\u0e48\u0e15\u0e2d\u0e1a\u0e23\u0e31\u0e1a\u0e41\u0e25\u0e49\u0e27\u0e41\u0e2a\u0e14\u0e07\u0e14\u0e48\u0e32\u0e19\u0e1a\u0e19\u0e41\u0e1c\u0e19\u0e17\u0e35\u0e48 (\u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23\u0e22\u0e48\u0e2d \u0e0a\u0e37\u0e48\u0e2d \u0e41\u0e25\u0e30\u0e08\u0e38\u0e14\u0e2d\u0e2d\u0e19\u0e44\u0e25\u0e19\u0e4c)",
+    "\u0e02\u0e19\u0e21\u0e21\u0e38\u0e21\u0e42\u0e04\u0e49\u0e07\u0e21\u0e19 \u0e44\u0e21\u0e48\u0e40\u0e2b\u0e25\u0e35\u0e48\u0e22\u0e21\u0e17\u0e37\u0e48\u0e2d (\u0e02\u0e19\u0e21\u0e0a\u0e31\u0e49\u0e19 \u0e40\u0e22\u0e25\u0e25\u0e35\u0e48 \u0e40\u0e1c\u0e37\u0e2d\u0e01 \u0e21\u0e30\u0e21\u0e48\u0e27\u0e07)",
+    "\u0e01\u0e23\u0e30\u0e14\u0e32\u0e19\u0e40\u0e25\u0e48\u0e19\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e08\u0e32\u0e01\u0e2a\u0e35\u0e02\u0e32\u0e27\u0e40\u0e1b\u0e47\u0e19\u0e44\u0e25\u0e48\u0e2a\u0e35\u0e15\u0e32\u0e21\u0e18\u0e35\u0e21 \u0e0a\u0e48\u0e2d\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e21\u0e47\u0e14\u0e2b\u0e21\u0e2d\u0e19\u0e42\u0e1b\u0e23\u0e48\u0e07\u0e41\u0e2a\u0e07\u0e21\u0e38\u0e21\u0e42\u0e04\u0e49\u0e07",
+    "\u0e41\u0e2a\u0e14\u0e07\u0e40\u0e25\u0e02\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e19\u0e43\u0e19\u0e2b\u0e19\u0e49\u0e32\u0e40\u0e25\u0e48\u0e19\u0e14\u0e49\u0e27\u0e22 (\u0e43\u0e15\u0e49\u0e01\u0e23\u0e30\u0e14\u0e32\u0e19) \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e41\u0e04\u0e48\u0e2b\u0e31\u0e27\u0e40\u0e01\u0e21"
    ]
   },
   {
    "v": "01.00.0001",
    "d": "2026-10-30",
    "items": [
-    "ปรับโทนสีทั้งเกมให้สว่างสดใส สไตล์ขนมหวาน ทั้งพื้นหลัง ปุ่ม การ์ด และกระดาน (ทุกธีมสว่างขึ้น)",
-    "วาดรูปขนมใหม่ทั้ง 6 ชนิดให้สมจริงและมีมิติ: ทับทิมกรอบราดกะทิ, มะม่วงหั่นลูกเต๋า, ขนมชั้นใบเตย, เยลลี่ดอกอัญชัน, เผือกทรงหกเหลี่ยม, พุดดิ้งกะทิ พร้อมเงา ไฮไลต์ และความหนา",
-    "ลูกชุบสายรุ้งวาดใหม่เป็นลูกชุบเคลือบเงา หมุนได้",
-    "ซื้อ +5 ตาเดิน ราคา 80 เหรียญ ได้ตาเดินเพิ่ม 5 ตา (จากเดิม 3 ตา) ทั้งตอนซื้อและตอนใช้จากกระเป๋า",
-    "จัดหน้าจอแนวตั้งให้พอดีจอ ไม่ต้องเลื่อนหน้า ทั้งหน้าแผนที่และหน้าเล่น ปรับตามขนาดจอและตอนหมุนจอ",
-    "ถ้าเปิดบนมือถือแนวนอน จะมีข้อความให้หมุนเป็นแนวตั้ง",
-    "เพิ่มหน้าตั้งชื่อหลังสมัครไอดีสำเร็จ (2–16 ตัวอักษร มีปุ่มสุ่มชื่อ) ชื่อนี้แสดงในกระดานผู้เล่นและให้เพื่อนค้นหาได้ แตะที่ชื่อผู้เล่นด้านบนเพื่อเปลี่ยนภายหลัง",
-    "เพิ่มเลขเวอร์ชัน (รูปแบบ 00.00.0000) ต่อท้ายชื่อเกม วิ่งเลขอัตโนมัติเมื่อแก้ไขไฟล์ด้วย bump.js",
-    "เพิ่มคู่มือการเล่นในเกม และหน้ารายละเอียดการอัปเดต (ปุ่ม คู่มือ · อัปเดต บนหน้าแผนที่ หรือแตะเลขเวอร์ชัน)"
+    "\u0e1b\u0e23\u0e31\u0e1a\u0e42\u0e17\u0e19\u0e2a\u0e35\u0e17\u0e31\u0e49\u0e07\u0e40\u0e01\u0e21\u0e43\u0e2b\u0e49\u0e2a\u0e27\u0e48\u0e32\u0e07\u0e2a\u0e14\u0e43\u0e2a \u0e2a\u0e44\u0e15\u0e25\u0e4c\u0e02\u0e19\u0e21\u0e2b\u0e27\u0e32\u0e19 \u0e17\u0e31\u0e49\u0e07\u0e1e\u0e37\u0e49\u0e19\u0e2b\u0e25\u0e31\u0e07 \u0e1b\u0e38\u0e48\u0e21 \u0e01\u0e32\u0e23\u0e4c\u0e14 \u0e41\u0e25\u0e30\u0e01\u0e23\u0e30\u0e14\u0e32\u0e19 (\u0e17\u0e38\u0e01\u0e18\u0e35\u0e21\u0e2a\u0e27\u0e48\u0e32\u0e07\u0e02\u0e36\u0e49\u0e19)",
+    "\u0e27\u0e32\u0e14\u0e23\u0e39\u0e1b\u0e02\u0e19\u0e21\u0e43\u0e2b\u0e21\u0e48\u0e17\u0e31\u0e49\u0e07 6 \u0e0a\u0e19\u0e34\u0e14\u0e43\u0e2b\u0e49\u0e2a\u0e21\u0e08\u0e23\u0e34\u0e07\u0e41\u0e25\u0e30\u0e21\u0e35\u0e21\u0e34\u0e15\u0e34: \u0e17\u0e31\u0e1a\u0e17\u0e34\u0e21\u0e01\u0e23\u0e2d\u0e1a\u0e23\u0e32\u0e14\u0e01\u0e30\u0e17\u0e34, \u0e21\u0e30\u0e21\u0e48\u0e27\u0e07\u0e2b\u0e31\u0e48\u0e19\u0e25\u0e39\u0e01\u0e40\u0e15\u0e4b\u0e32, \u0e02\u0e19\u0e21\u0e0a\u0e31\u0e49\u0e19\u0e43\u0e1a\u0e40\u0e15\u0e22, \u0e40\u0e22\u0e25\u0e25\u0e35\u0e48\u0e14\u0e2d\u0e01\u0e2d\u0e31\u0e0d\u0e0a\u0e31\u0e19, \u0e40\u0e1c\u0e37\u0e2d\u0e01\u0e17\u0e23\u0e07\u0e2b\u0e01\u0e40\u0e2b\u0e25\u0e35\u0e48\u0e22\u0e21, \u0e1e\u0e38\u0e14\u0e14\u0e34\u0e49\u0e07\u0e01\u0e30\u0e17\u0e34 \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e40\u0e07\u0e32 \u0e44\u0e2e\u0e44\u0e25\u0e15\u0e4c \u0e41\u0e25\u0e30\u0e04\u0e27\u0e32\u0e21\u0e2b\u0e19\u0e32",
+    "\u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a\u0e2a\u0e32\u0e22\u0e23\u0e38\u0e49\u0e07\u0e27\u0e32\u0e14\u0e43\u0e2b\u0e21\u0e48\u0e40\u0e1b\u0e47\u0e19\u0e25\u0e39\u0e01\u0e0a\u0e38\u0e1a\u0e40\u0e04\u0e25\u0e37\u0e2d\u0e1a\u0e40\u0e07\u0e32 \u0e2b\u0e21\u0e38\u0e19\u0e44\u0e14\u0e49",
+    "\u0e0b\u0e37\u0e49\u0e2d +5 \u0e15\u0e32\u0e40\u0e14\u0e34\u0e19 \u0e23\u0e32\u0e04\u0e32 80 \u0e40\u0e2b\u0e23\u0e35\u0e22\u0e0d \u0e44\u0e14\u0e49\u0e15\u0e32\u0e40\u0e14\u0e34\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21 5 \u0e15\u0e32 (\u0e08\u0e32\u0e01\u0e40\u0e14\u0e34\u0e21 3 \u0e15\u0e32) \u0e17\u0e31\u0e49\u0e07\u0e15\u0e2d\u0e19\u0e0b\u0e37\u0e49\u0e2d\u0e41\u0e25\u0e30\u0e15\u0e2d\u0e19\u0e43\u0e0a\u0e49\u0e08\u0e32\u0e01\u0e01\u0e23\u0e30\u0e40\u0e1b\u0e4b\u0e32",
+    "\u0e08\u0e31\u0e14\u0e2b\u0e19\u0e49\u0e32\u0e08\u0e2d\u0e41\u0e19\u0e27\u0e15\u0e31\u0e49\u0e07\u0e43\u0e2b\u0e49\u0e1e\u0e2d\u0e14\u0e35\u0e08\u0e2d \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e40\u0e25\u0e37\u0e48\u0e2d\u0e19\u0e2b\u0e19\u0e49\u0e32 \u0e17\u0e31\u0e49\u0e07\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e1c\u0e19\u0e17\u0e35\u0e48\u0e41\u0e25\u0e30\u0e2b\u0e19\u0e49\u0e32\u0e40\u0e25\u0e48\u0e19 \u0e1b\u0e23\u0e31\u0e1a\u0e15\u0e32\u0e21\u0e02\u0e19\u0e32\u0e14\u0e08\u0e2d\u0e41\u0e25\u0e30\u0e15\u0e2d\u0e19\u0e2b\u0e21\u0e38\u0e19\u0e08\u0e2d",
+    "\u0e16\u0e49\u0e32\u0e40\u0e1b\u0e34\u0e14\u0e1a\u0e19\u0e21\u0e37\u0e2d\u0e16\u0e37\u0e2d\u0e41\u0e19\u0e27\u0e19\u0e2d\u0e19 \u0e08\u0e30\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e43\u0e2b\u0e49\u0e2b\u0e21\u0e38\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e41\u0e19\u0e27\u0e15\u0e31\u0e49\u0e07",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e2b\u0e19\u0e49\u0e32\u0e15\u0e31\u0e49\u0e07\u0e0a\u0e37\u0e48\u0e2d\u0e2b\u0e25\u0e31\u0e07\u0e2a\u0e21\u0e31\u0e04\u0e23\u0e44\u0e2d\u0e14\u0e35\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08 (2\u201316 \u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23 \u0e21\u0e35\u0e1b\u0e38\u0e48\u0e21\u0e2a\u0e38\u0e48\u0e21\u0e0a\u0e37\u0e48\u0e2d) \u0e0a\u0e37\u0e48\u0e2d\u0e19\u0e35\u0e49\u0e41\u0e2a\u0e14\u0e07\u0e43\u0e19\u0e01\u0e23\u0e30\u0e14\u0e32\u0e19\u0e1c\u0e39\u0e49\u0e40\u0e25\u0e48\u0e19\u0e41\u0e25\u0e30\u0e43\u0e2b\u0e49\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e19\u0e04\u0e49\u0e19\u0e2b\u0e32\u0e44\u0e14\u0e49 \u0e41\u0e15\u0e30\u0e17\u0e35\u0e48\u0e0a\u0e37\u0e48\u0e2d\u0e1c\u0e39\u0e49\u0e40\u0e25\u0e48\u0e19\u0e14\u0e49\u0e32\u0e19\u0e1a\u0e19\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e20\u0e32\u0e22\u0e2b\u0e25\u0e31\u0e07",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e25\u0e02\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e19 (\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a 00.00.0000) \u0e15\u0e48\u0e2d\u0e17\u0e49\u0e32\u0e22\u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e01\u0e21 \u0e27\u0e34\u0e48\u0e07\u0e40\u0e25\u0e02\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02\u0e44\u0e1f\u0e25\u0e4c\u0e14\u0e49\u0e27\u0e22 bump.js",
+    "\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e04\u0e39\u0e48\u0e21\u0e37\u0e2d\u0e01\u0e32\u0e23\u0e40\u0e25\u0e48\u0e19\u0e43\u0e19\u0e40\u0e01\u0e21 \u0e41\u0e25\u0e30\u0e2b\u0e19\u0e49\u0e32\u0e23\u0e32\u0e22\u0e25\u0e30\u0e40\u0e2d\u0e35\u0e22\u0e14\u0e01\u0e32\u0e23\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15 (\u0e1b\u0e38\u0e48\u0e21 \u0e04\u0e39\u0e48\u0e21\u0e37\u0e2d \u00b7 \u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15 \u0e1a\u0e19\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e1c\u0e19\u0e17\u0e35\u0e48 \u0e2b\u0e23\u0e37\u0e2d\u0e41\u0e15\u0e30\u0e40\u0e25\u0e02\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e19)"
    ]
   }
  ]
@@ -626,18 +643,114 @@ let act=makeMask('square');
 let grid=[],ice=new Int8Array(N*N),dying=[],particles=[],texts=[],beams=[],waiters=[];
 let score=0,target=0,moves=0,used=0,combo=0;
 let busy=false,over=false,tool=null,selected=null,hintPair=null,lastAction=performance.now(),time=0;
+let timed=false,timeLeft=0,GL=[],ingTotal=0,ingSpawn=0,starBase=0,needScore=true;
 let moveMult=1,pendingFish=[],flyers=[],fusions=[],bolts=[],shake=0,sflash=0,sflashCol='255,255,255';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const A=(r,c)=>r>=0&&r<N&&c>=0&&c<N&&act[r*N+c]===1;
 
 function tierFor(lv){let i=0;THEMES.forEach((t,k)=>{if(lv>=t.from)i=k});return i}
-function levelConfig(lv){
+function levelConfig0(lv){
   const ti=tierFor(lv),th=THEMES[ti],k=lv-th.from,shape=shapeFor(lv),mask=makeMask(shape);
   let cnt=0;for(const v of mask)cnt+=v;
   const f=.45+.55*cnt/64;
   const iceN=th.ice?Math.min(Math.floor(cnt*.45),Math.round((th.ice+k*2)*cnt/64/2)*2):0;
   return {ti,colors:th.colors,shape,mask,cnt,target:Math.round((600+lv*650)*f/50)*50,moves:Math.max(14,th.moves-Math.floor(k/2)),ice:iceN,ice2:th.ice2};
 }
+/* ---------- level objectives (Candy Crush style): score / order / make / drop / mix ---------- */
+const MAKE_NAME={stripe:'ขนมลายเส้น',bomb:'ห่อระเบิด',fish:'ปลาตะเพียน',rainbow:'ลูกชุบสายรุ้ง'};
+const KIND_LIST=['score','order','make','drop','mix','time','combo'];
+function rawKind(lv){
+  if(lv<=2)return 'score';
+  const r=seeded(lv*7919+5);r();r();const x=r();
+  if(lv<=5)return x<.25?'score':x<.65?'order':'make';
+  return x<.12?'score':x<.30?'order':x<.46?'make':x<.62?'drop':x<.76?'mix':x<.88?'time':'combo';
+}
+function kindFor(lv){
+  const k=rawKind(lv);
+  if(lv>3&&k===rawKind(lv-1)){const r=seeded(lv*31+7);r();return lv<=5?(k==='order'?'make':'order'):KIND_LIST[(KIND_LIST.indexOf(k)+1+Math.floor(r()*(KIND_LIST.length-1)))%KIND_LIST.length]}
+  return k;
+}
+function pickN(r,n,max){const a=[];while(a.length<n){const t=Math.floor(r()*max);if(!a.includes(t))a.push(t)}return a}
+function makeGoals(lv,cfg){
+  const kind=kindFor(lv),r=seeded(lv*104729+17);r();r();
+  const list=[];let extra=0,time=false;
+  const order=two=>pickN(r,two?2:1,cfg.colors).forEach(t=>list.push({k:'collect',t,need:two?8+Math.min(7,Math.floor(lv*.25)):12+Math.min(10,Math.floor(lv*.35))}));
+  const make=n=>{const ks=lv<=8?['stripe','bomb','fish']:['stripe','bomb','fish','rainbow'];
+    pickN(r,n,ks.length).forEach(i=>{const s=ks[i];list.push({k:'make',s,need:s==='stripe'?(n>1?3:4+Math.floor(r()*2)):s==='rainbow'?(lv>=20?2:1):2+Math.floor(r()*2)})})};
+  const drop=()=>list.push({k:'ing',need:Math.min(5,2+Math.floor(lv/8))});
+  if(kind==='order'){order(lv>=8&&r()<.5);extra=3}
+  else if(kind==='make'){make(lv>=10&&r()<.5?2:1);extra=3}
+  else if(kind==='drop'){drop();extra=4}
+  else if(kind==='time'){time=true;if(r()<.5)extra=0;else{order(false);extra=3}}
+  else if(kind==='combo'){const n=3+(lv>=12?1:0)+(lv>=24?1:0);list.push({k:'combo',n,need:n===3?3:n===4?2:1});extra=4}
+  else if(kind==='mix'){
+    if(cfg.ice){order(false);extra=3}
+    else if(r()<.5){order(false);make(1);extra=5}
+    else{drop();order(false);extra=6}
+  }
+  return {kind,list,needScore:kind==='score'||(kind==='time'&&!list.length),extra,time};
+}
+const _lc={};
+function levelConfig(lv){
+  if(_lc[lv])return _lc[lv];
+  const c=levelConfig0(lv),g=makeGoals(lv,c);
+  c.goals=g.list;c.kind=g.kind;c.needScore=g.needScore;c.moves+=g.extra;c.time=g.time?Math.round(c.moves*3.4/5)*5:0;
+  c.sb=g.needScore?c.target:Math.round(c.target*.5/50)*50;
+  return _lc[lv]=c;
+}
+function goalText(g,n){
+  if(g.k==='collect')return 'เก็บขนม'+FLAVORS[g.t]+' '+n+' ชิ้น';
+  if(g.k==='make')return 'สร้าง'+MAKE_NAME[g.s]+' '+n+(g.s==='rainbow'?' ลูก':' ชิ้น');
+  if(g.k==='combo')return 'ทำคอมโบต่อเนื่อง '+g.n+' ทอดในตาเดียว'+(n>1?' × '+n+' ครั้ง':'');
+  return 'ส่งกระทงลงขอบล่าง '+n+' ชิ้น';
+}
+const goalShort=g=>g.k==='collect'?FLAVORS[g.t]:g.k==='make'?MAKE_NAME[g.s]:g.k==='combo'?'คอมโบ '+g.n+' ทอด':'กระทง';
+function goalLines(cfg){
+  const a=[];
+  if(cfg.time)a.push('เวลา '+cfg.time+' วินาที (ไม่จำกัดตาเดิน)');
+  if(cfg.needScore)a.push('ทำคะแนนให้ถึง '+cfg.target.toLocaleString('th-TH'));
+  cfg.goals.forEach(g=>a.push(goalText(g,g.need)));
+  if(cfg.ice)a.push('ทุบน้ำแข็งให้หมด '+cfg.ice+' ช่อง');
+  if(!cfg.needScore)a.push('คะแนนใช้เก็บดาว (3 ดาวที่ '+(cfg.sb*2).toLocaleString('th-TH')+')');
+  return a;
+}
+function goalAdd(k,key,n){
+  if(!n)return;
+  for(const g of GL){if(g.k!==k||(k==='collect'&&g.t!==key)||(k==='make'&&g.s!==key))continue;if(g.have<g.need)g.have=Math.min(g.need,g.have+n)}
+}
+function renderGoals(){
+  const el=$('goalRow');if(!GL.length){el.hidden=true;return}
+  el.hidden=false;
+  el.innerHTML=GL.map(g=>{const ok=g.have>=g.need,dot=g.k==='collect'?'<i style="background:'+COLORS[g.t][0]+'"></i>':'';
+    return '<span class="gc'+(ok?' ok':'')+'">'+dot+goalShort(g)+' <b>'+(ok?'✓':g.have+'/'+g.need)+'</b></span>'}).join('');
+}
+/* drop-down objective: krathong tiles (t=-3) never match and are never destroyed; they fall to the bottom of their column */
+const ingOnBoard=()=>{let n=0;for(const row of grid)for(const t of row)if(t&&t.t===-3)n++;return n};
+function seedIng(){
+  if(!ingTotal)return;
+  const cols=[];for(let c=0;c<N;c++){let n=0;for(let r=0;r<N;r++)if(A(r,c))n++;if(n>=4)cols.push(c)}
+  for(let i=0;i<Math.min(2,ingTotal)&&cols.length;i++){const c=cols.splice(Math.floor(Math.random()*cols.length),1)[0],tl=grid[topRow(c)][c];if(tl){tl.t=-3;ingSpawn++}}
+}
+async function landIng(){
+  if(!ingTotal)return false;let any=false;
+  for(let c=0;c<N;c++){
+    let b=-1;for(let r=N-1;r>=0;r--)if(A(r,c)){b=r;break}
+    const tl=b>=0&&grid[b][c];
+    if(tl&&tl.t===-3){burst(tl);dying.push(tl);grid[b][c]=null;any=true;goalAdd('ing',0,1);score+=100;sfx('coin');texts.push({x:(c+.5)*cell,y:(b+.5)*cell,txt:'+100',life:1,big:false})}
+  }
+  if(any){gravity();await waitSettle();updateHUD()}
+  return any;
+}
+function drawKra(R){
+  ctx.save();ctx.translate(0,Math.sin(time*3)*R*.04);
+  ctx.fillStyle='#2f9e57';ctx.beginPath();ctx.ellipse(0,R*.4,R*.95,R*.4,0,0,7);ctx.fill();
+  ctx.fillStyle='#7bd88f';ctx.beginPath();ctx.ellipse(0,R*.34,R*.78,R*.28,0,0,7);ctx.fill();
+  for(const a of [-1.1,-.55,.55,1.1]){ctx.save();ctx.translate(0,R*.25);ctx.rotate(a);ctx.fillStyle='#ff9ec4';ctx.beginPath();ctx.ellipse(0,-R*.38,R*.22,R*.46,0,0,7);ctx.fill();ctx.restore()}
+  ctx.fillStyle='#ff6fa5';ctx.beginPath();ctx.ellipse(0,-R*.15,R*.24,R*.5,0,0,7);ctx.fill();
+  ctx.fillStyle='#ffd34d';ctx.beginPath();ctx.arc(0,R*.02,R*.13,0,7);ctx.fill();
+  ctx.restore();
+}
+
 function applyTheme(ti){
   tier=ti;const th=THEMES[tier],st=document.documentElement.style;
   ['bg','bg2','tray','line','cream','muted','accent'].forEach(k=>st.setProperty('--'+k,th[k]));
@@ -770,7 +883,7 @@ function findMove(){
   for(let r=0;r<N;r++)for(let c=0;c<N;c++)for(const [dr,dc] of [[0,1],[1,0]]){
     const r2=r+dr,c2=c+dc;if(!A(r,c)||!A(r2,c2))continue;
     const a=grid[r][c],b=grid[r2][c2];if(!a||!b)continue;
-    if(a.t===-1||b.t===-1||(a.sp&&b.sp))return [[r,c],[r2,c2]];
+    if(((a.t===-1||b.t===-1)&&a.t!==-3&&b.t!==-3)||(a.sp&&b.sp))return [[r,c],[r2,c2]];
     grid[r][c]=b;grid[r2][c2]=a;const ok=runAt(r,c)||runAt(r2,c2);grid[r][c]=a;grid[r2][c2]=b;
     if(ok)return [[r,c],[r2,c2]];
   }
@@ -799,7 +912,7 @@ function clearCells(keys,creations){
   let fx='';const fishes=[];
   while(queue.length){
     const k=queue.pop();if(processed.has(k)||createKeys.has(k))continue;
-    const r=Math.floor(k/N),c=k%N,tl=grid[r][c];if(!tl)continue;
+    const r=Math.floor(k/N),c=k%N,tl=grid[r][c];if(!tl||tl.t===-3)continue;
     processed.add(k);
     if(tl.inert){}
     else if(tl.sp==='k'){fishes.push([r,c,tl.t,tl.carry||null]);fx=fx||'fish'}
@@ -822,9 +935,9 @@ function clearCells(keys,creations){
   }
   for(const o of creations){
     const tl=grid[o.r][o.c];if(!tl)continue;tl.sp=o.sp;if(o.t===-1)tl.t=-1;tl.flash=1;
-    progress(o.t===-1?'rainbow':o.sp==='a'?'bomb':o.sp==='k'?'fish':'stripe',1);
+    {const mk=o.t===-1?'rainbow':o.sp==='a'?'bomb':o.sp==='k'?'fish':'stripe';progress(mk,1);goalAdd('make',mk,1)}
   }
-  got.forEach((v,t)=>progress('collect',v,t));
+  got.forEach((v,t)=>{progress('collect',v,t);goalAdd('collect',t,v)});
   if(fishes.length)launchFish(fishes);
   const pts=Math.round((n*20*combo+creations.length*60+iceHits*40)*moveMult);
   score+=pts;progress('score',pts);progress('ice',iceHits);
@@ -868,12 +981,14 @@ function gravity(){
       const r=cells[i],tl=grid[r][c];if(!tl)continue;
       const tr=cells[w];if(tr!==r){grid[tr][c]=tl;grid[r][c]=null;tl.r=tr}tl.m='fall';w--;
     }
-    for(let i=w;i>=0;i--){const r=cells[i];const tl=newTile(rnd(),r,c);tl.y=cells[0]-1-(w-i)-.3;grid[r][c]=tl}
+    for(let i=w;i>=0;i--){const r=cells[i];const tl=newTile(rnd(),r,c);tl.y=cells[0]-1-(w-i)-.3;
+      if(i===0&&cells.length>=4&&ingTotal&&ingSpawn<ingTotal&&ingOnBoard()<2&&Math.random()<.22){tl.t=-3;ingSpawn++}
+      grid[r][c]=tl}
   }
 }
 async function shuffle(){
   texts.push({x:S/2,y:S*.42,txt:'สับขนมใหม่',life:1.3,big:true});
-  const pos=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(A(r,c)&&grid[r][c])pos.push([r,c]);
+  const pos=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(A(r,c)&&grid[r][c]&&grid[r][c].t!==-3)pos.push([r,c]);
   const all=pos.map(([r,c])=>grid[r][c]);
   for(let tries=0;tries<300;tries++){
     for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
@@ -891,7 +1006,7 @@ function launchFish(list){
   for(const [r,c,t,carry] of list){
     let best=null,bs=-1e9;
     for(let rr=0;rr<N;rr++)for(let cc=0;cc<N;cc++){
-      const tl=grid[rr][cc],k=rr*N+cc;if(!tl||taken.has(k)||tl.hide)continue;
+      const tl=grid[rr][cc],k=rr*N+cc;if(!tl||taken.has(k)||tl.hide||tl.t===-3)continue;
       let sc=Math.random()*3;if(ice[k]>0)sc+=8+ice[k]*4;if(tl.sp)sc+=2.5;if(tl.t===-1)sc+=1;
       if(sc>bs){bs=sc;best=[rr,cc]}
     }
@@ -978,8 +1093,8 @@ async function specialCombo(a,b,r1,c1,r2,c2){
   await cascade(null);
 }
 async function cascade(swapCells){
-  while(true){combo++;if(!resolve(swapCells)){combo--;break}swapCells=null;await waitSettle();await flushFish();gravity();await waitSettle()}
-  progress('combo',combo);
+  while(true){combo++;if(!resolve(swapCells)){combo--;if(await landIng())continue;break}swapCells=null;await waitSettle();await flushFish();gravity();await waitSettle()}
+  progress('combo',combo);for(const g of GL)if(g.k==='combo'&&combo>=g.n&&g.have<g.need)g.have++;
   if(!findMove())await shuffle();
 }
 async function afterSpecialClear(keys){combo=1;await wave(keys);await cascade(null)}
@@ -990,7 +1105,7 @@ async function trySwap(r1,c1,r2,c2){
   const a=grid[r1][c1],b=grid[r2][c2];
   swapGrid(r1,c1,r2,c2);sfx('swap');await waitSettle();
   if(spk(a)&&spk(b)){moves--;used++;await specialCombo(a,b,r1,c1,r2,c2)}
-  else if(a.t===-1||b.t===-1){
+  else if((a.t===-1||b.t===-1)&&a.t!==-3&&b.t!==-3){
     moves--;used++;
     const rb=a.t===-1?a:b,o=rb===a?b:a;rb.inert=true;
     const keys=new Set([r1*N+c1,r2*N+c2]),cells=[];
@@ -1031,34 +1146,34 @@ async function useShuffle(){
 }
 function saveRun(){
   if(over)return;
-  save.run={v:3,level:cur,score,moves,used,cells:grid.flat().map(t=>t?[t.t,t.sp||0]:null),ice:Array.from(ice)};persist();
+  save.run={v:3,level:cur,score,moves,used,cells:grid.flat().map(t=>t?[t.t,t.sp||0]:null),ice:Array.from(ice),g:GL.map(g=>g.have),is:ingSpawn,tl:timeLeft};persist();
 }
 
 /* ---------- level flow ---------- */
 function startLevel(lv,resume){
   syncHearts();
   if(!resume&&save.hearts<=0){showNoHearts();return}
-  cur=lv;const cfg=levelConfig(lv);act=cfg.mask;NC=cfg.colors;target=cfg.target;applyTheme(cfg.ti);
+  cur=lv;const cfg=levelConfig(lv);timed=!!cfg.time;timeLeft=cfg.time||0;act=cfg.mask;NC=cfg.colors;target=cfg.target;needScore=cfg.needScore;starBase=cfg.sb;GL=cfg.goals.map(g=>Object.assign({},g,{have:0}));ingTotal=(GL.find(g=>g.k==='ing')||{need:0}).need;ingSpawn=0;applyTheme(cfg.ti);
   over=false;busy=false;tool=null;selected=null;hintPair=null;dying=[];beams=[];particles=[];texts=[];waiters=[];combo=0;pendingFish=[];flyers=[];fusions=[];bolts=[];shake=0;sflash=0;moveMult=1;
   const run=save.run;
   if(resume&&run&&run.cells&&run.cells.length===N*N){
     grid=[];for(let r=0;r<N;r++){grid.push([]);for(let c=0;c<N;c++){const d=run.cells[r*N+c];
       if(!d||!A(r,c)){grid[r].push(null);continue}const t=newTile(d[0],r,c);t.sp=d[1]||null;t.y=r-N-1-(N-r)*.15;grid[r].push(t)}}
     ice=Int8Array.from(run.ice||[]);if(ice.length!==N*N)ice=new Int8Array(N*N);
-    score=run.score;moves=run.moves;used=run.used||0;
+    score=run.score;moves=run.moves;used=run.used||0;if(run.g&&run.g.length===GL.length)GL.forEach((g,i)=>g.have=run.g[i]);ingSpawn=run.is||0;if(timed&&run.tl>0)timeLeft=run.tl;
   }else{
-    save.run=null;score=0;moves=cfg.moves;used=0;buildBoard(true);placeIce(cfg);
+    save.run=null;score=0;moves=cfg.moves;used=0;buildBoard(true);placeIce(cfg);seedIng();
   }
   showScreen('game');
-  lastAction=performance.now();updateHUD();persist();
+  lastAction=performance.now();updateHUD();persist();toast('เป้าหมาย · '+goalLines(cfg).join(' · '));
   if(cfg.ti>save.seenTier){save.seenTier=cfg.ti;persist();showThemeIntro()}
 }
-function goalsMet(){return score>=target&&iceLeft()===0}
-function checkEnd(){if(over)return;if(goalsMet())winLevel();else if(moves<=0)outOfMoves()}
+function goalsMet(){return (!needScore||score>=target)&&iceLeft()===0&&GL.every(g=>g.have>=g.need)}
+function checkEnd(){if(over)return;if(goalsMet())winLevel();else if(timed?timeLeft<=0:moves<=0)outOfMoves()}
 function winLevel(){
   over=true;
-  const bonus=moves*60;score+=bonus;
-  const stars=score>=target*2?3:score>=target*1.5?2:1;
+  const rem=timed?Math.round(timeLeft):moves,unit=timed?' วินาที':' ตา',bonus=timed?rem*40:moves*60;score+=bonus;
+  const stars=score>=starBase*2?3:score>=starBase*1.5?2:1;
   const coins=20+stars*10;save.coins+=coins;
   const lv=cur,first=lv===save.unlocked;
   save.stars[lv]=Math.max(save.stars[lv]||0,stars);
@@ -1068,19 +1183,21 @@ function winLevel(){
   const btns=tarot?[{label:'เปิดไพ่พยากรณ์',primary:true,fn:()=>showTarot(lv,first?lv:0)}]
     :[{label:'ด่านถัดไป',primary:true,fn:()=>startLevel(lv+1)},{label:'กลับแผนที่',fn:()=>showMap(first?lv:0)}];
   modal({name:'win',title:'ผ่านด่าน '+lv+'!',stars,
-    html:'<p>'+(moves>0?'โบนัสตาเดินเหลือ '+moves+' ตา +'+bonus.toLocaleString('th-TH')+'<br>':'')+'คะแนนรวม <b>'+score.toLocaleString('th-TH')+'</b> · ได้ <b>'+coins+' เหรียญ</b></p>'+(tarot?'<p>ครบ 5 ด่านแล้ว ได้เวลาเปิดไพ่ดูดวง</p>':''),
+    html:'<p>'+(rem>0?'โบนัส'+(timed?'เวลา':'ตาเดิน')+'เหลือ '+rem+unit+' +'+bonus.toLocaleString('th-TH')+'<br>':'')+'คะแนนรวม <b>'+score.toLocaleString('th-TH')+'</b> · ได้ <b>'+coins+' เหรียญ</b></p>'+(tarot?'<p>ครบ 5 ด่านแล้ว ได้เวลาเปิดไพ่ดูดวง</p>':''),
     buttons:btns});
 }
 function outOfMoves(){
   over=true;
-  const miss=[];if(score<target)miss.push('ขาดอีก <b>'+(target-score).toLocaleString('th-TH')+'</b> คะแนน');if(iceLeft())miss.push('น้ำแข็งเหลือ <b>'+iceLeft()+'</b> ช่อง');
+  const miss=[];if(needScore&&score<target)miss.push('ขาดอีก <b>'+(target-score).toLocaleString('th-TH')+'</b> คะแนน');if(iceLeft())miss.push('น้ำแข็งเหลือ <b>'+iceLeft()+'</b> ช่อง');
+  GL.forEach(g=>{if(g.have<g.need)miss.push(goalText(g,g.need-g.have)+' (ยังขาด)')});
   const btns=[];
   if(save.boosters.moves>0)btns.push({label:'ใช้ +5 ตาเดิน (มี '+save.boosters.moves+')',primary:true,fn:()=>{save.boosters.moves--;extraMoves()}});
   else btns.push({label:'ซื้อ +5 ตาเดิน · 80 เหรียญ',primary:true,disabled:save.coins<80,fn:()=>{save.coins-=80;sfx('coin');extraMoves()}});
   btns.push({label:'ยอมแพ้ (เสียหัวใจ 1 ดวง)',fn:failLevel});
-  modal({name:'outofmoves',title:'ตาเดินหมดแล้ว',html:'<p>'+miss.join('<br>')+'</p>',buttons:btns});
+  if(timed)btns.forEach(b=>{b.label=b.label.replace('+5 ตาเดิน','+15 วินาที')});
+  modal({name:'outofmoves',title:timed?'เวลาหมดแล้ว':'ตาเดินหมดแล้ว',html:'<p>'+miss.join('<br>')+'</p>',buttons:btns});
 }
-function extraMoves(){moves+=5;over=false;updateHUD();saveRun();toast('ได้ตาเดินเพิ่ม 5 ตา')}
+function extraMoves(){if(timed)timeLeft+=15;else moves+=5;over=false;updateHUD();saveRun();toast(timed?'ได้เวลาเพิ่ม 15 วินาที':'ได้ตาเดินเพิ่ม 5 ตา')}
 function failLevel(){
   over=true;loseHeart();sfx('lose');updateHUD();
   const btns=save.hearts>0?[{label:'ลองอีกครั้ง',primary:true,fn:()=>startLevel(cur)},{label:'กลับแผนที่',fn:()=>showMap()}]:[{label:'กลับแผนที่',primary:true,fn:()=>{showMap();showNoHearts()}}];
@@ -1135,8 +1252,8 @@ function previewLevel(lv){
   const html='<dl class="facts"><dt>ธีม</dt><dd>'+th.name+' <span class="diff">'+th.diff+'</span></dd>'+
     '<dt>ความยาก</dt><dd>'+flamesSVG(cfg.ti+1,16)+'</dd>'+
     '<dt>กระดาน</dt><dd>'+miniMaskSVG(cfg.mask,22,th.accent)+SHAPES[cfg.shape].name+'</dd>'+
-    '<dt>เป้าหมาย</dt><dd>'+cfg.target.toLocaleString('th-TH')+' คะแนน'+(cfg.ice?' · ทุบน้ำแข็ง '+cfg.ice+' ช่อง':'')+'</dd>'+
-    '<dt>ตาเดิน</dt><dd>'+cfg.moves+' ตา</dd>'+
+    '<dt>เป้าหมาย</dt><dd>'+goalLines(cfg).join('<br>')+'</dd>'+
+    '<dt>'+(cfg.time?'เวลา':'ตาเดิน')+'</dt><dd>'+(cfg.time?cfg.time+' วินาที':cfg.moves+' ตา')+'</dd>'+
     '<dt>ดาวที่ได้</dt><dd>'+(st?'★'.repeat(st)+'☆'.repeat(3-st):'ยังไม่เคยผ่าน')+'</dd></dl>'+
     (tarot?'<p>'+(save.tarotDone.includes(lv)?'เปิดไพ่ของด่านนี้แล้ว':'ผ่านด่านนี้แล้วได้เปิดไพ่พยากรณ์ 1 ใบ')+'</p>':'');
   modal({name:'preview',title:'ด่าน '+lv,html,buttons:[{label:save.hearts>0?'เล่น':'หัวใจหมด',primary:true,fn:()=>startLevel(lv)},{label:'ปิด'}]});
@@ -1324,6 +1441,17 @@ let toastT=0;
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
 
 /* ---------- HUD ---------- */
+function showTime(){
+  const tm=Math.ceil(timeLeft);
+  $('moves').textContent=timed?Math.floor(tm/60)+':'+String(tm%60).padStart(2,'0'):Math.max(0,moves);
+  $('movesBox').firstElementChild.textContent=timed?'เวลา':'ตาเดิน';
+  $('movesBox').classList.toggle('low',timed?tm<=10:moves<=5);
+}
+setInterval(()=>{
+  if(!timed||over||screen!=='game'||!ov.hidden||document.hidden)return;
+  timeLeft=Math.max(0,timeLeft-.25);showTime();
+  if(timeLeft<=0&&!busy)checkEnd();
+},250);
 function updateHUD(){
   const th=THEMES[tier];
   $('heartsN').textContent=save.hearts;$('heartsT').textContent=save.hearts>=MAX?'เต็ม':heartTimer();
@@ -1332,8 +1460,8 @@ function updateHUD(){
   for(const [id,on] of [['musicBtn',save.music],['sfxBtn',save.sfx]]){$(id).classList.toggle('off',!on);$(id).setAttribute('aria-pressed',String(on))}
   if(screen!=='game')return;
   $('score').textContent=score.toLocaleString('th-TH');$('target').textContent=target.toLocaleString('th-TH');
-  $('moves').textContent=Math.max(0,moves);$('movesBox').classList.toggle('low',moves<=5);
-  $('bar').style.width=Math.min(100,score/target*100)+'%';
+  showTime();
+  {const tg=needScore?target:starBase;$('target').textContent=tg.toLocaleString('th-TH');$('bar').style.width=Math.min(100,score/tg*100)+'%';$('scoreLbl').textContent=needScore?'คะแนน / เป้าหมาย':'คะแนน / เป้าดาว';renderGoals()}
   const il=iceLeft();$('iceRow').hidden=!(levelConfig(cur).ice||il);$('iceN').textContent=il;
   $('levelN').textContent='ด่าน '+cur;$('themeName').textContent=th.name;$('themeDiff').textContent=th.diff;
   $('shapeName').textContent='กระดาน'+SHAPES[shapeFor(cur)].name;
@@ -1551,6 +1679,7 @@ function drawBombOverlay(tl,R){
 }
 function drawBody(tl,R){
   if(!SPR)buildSprites();
+  if(tl.t===-3){drawKra(R);return}
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   const sr=R*1.3,sp=tl.sp,pulse=.5+.5*Math.sin(time*4+tl.c*1.7+tl.r);
   if(sp||tl.t===-1){
@@ -1735,7 +1864,7 @@ function loop(now){
     const before=save.hearts;syncHearts();
     if(save.hearts>before&&modalName==='nohearts'){closeModal();toast('หัวใจกลับมาแล้ว เล่นต่อได้')}
     updateHUD();const el=$('nhTimer');if(el)el.textContent=heartTimer();}
-  const fk=innerWidth+'x'+innerHeight+screen+($('iceRow').hidden?0:1)+($('appRoot').hidden?0:1)+(window.visualViewport?Math.round(window.visualViewport.height):0);
+  const fk=innerWidth+'x'+innerHeight+screen+($('iceRow').hidden?0:1)+($('goalRow').hidden?0:1)+($('appRoot').hidden?0:1)+(window.visualViewport?Math.round(window.visualViewport.height):0);
   if(fk!==fitKey){fitKey=fk;fit()}
   if(screen==='game'){if(cv.clientWidth&&Math.abs(cv.clientWidth-S)>1)resize();update(dt);render()}
   drawAmb(dt);
@@ -2023,7 +2152,8 @@ function guideHTML(){
   const P=k=>TOOLS[k].price;
   const sec=(h,body)=>'<div class="sec"><b class="h">'+h+'</b>'+body+'</div>';
   return '<div class="gd">'+
-   sec('เป้าหมาย','ทำคะแนนให้ถึงเป้าหมายก่อนตาเดินหมด ด่านที่มีน้ำแข็งต้องทุบน้ำแข็งให้หมดด้วย ผ่านด่านได้ 1–3 ดาว (คะแนน ≥ 1.5 เท่าของเป้าได้ 2 ดาว, ≥ 2 เท่าได้ 3 ดาว) และได้เหรียญ 30–50 เหรียญ ตาเดินที่เหลือแปลงเป็นคะแนนโบนัส')+
+   sec('เป้าหมาย','ทำตามเป้าหมายของด่านให้ครบก่อนตาเดินหรือเวลาหมด (ดูหัวข้อ ภารกิจผ่านด่าน) ด่านที่มีน้ำแข็งต้องทุบน้ำแข็งให้หมดด้วย ผ่านด่านได้ 1–3 ดาว (คะแนน ≥ 1.5 เท่าของเป้าได้ 2 ดาว, ≥ 2 เท่าได้ 3 ดาว) และได้เหรียญ 30–50 เหรียญ ตาเดินที่เหลือ (หรือเวลาที่เหลือ) แปลงเป็นคะแนนโบนัส')+
+   sec('ภารกิจผ่านด่าน (สุ่มตามเลขด่าน)','<p>เป้าหมายของแต่ละด่านไม่เหมือนกัน ดูได้ที่หน้าพรีวิวด่าน และชิปความคืบหน้าใต้คะแนนระหว่างเล่น เล่นซ้ำด่านเดิมจะได้เป้าหมายเดิม</p><ul><li><b>ทำคะแนน</b> ทำคะแนนให้ถึงเป้าก่อนตาเดินหมด</li><li><b>เก็บขนม</b> เรียงขนมรสที่กำหนดให้หายไปตามจำนวน ด่านหลังๆ อาจต้องเก็บ 2 รส</li><li><b>สร้างขนมพิเศษ</b> เรียงให้เกิดขนมลายเส้น ห่อระเบิด ปลาตะเพียน หรือลูกชุบสายรุ้งตามจำนวน (นับเฉพาะที่เกิดจากการเรียง ไม่นับจากโคมวิเศษหรือคอมโบ)</li><li><b>ส่งกระทงลงขอบล่าง</b> กระทงดอกบัวจะตกลงมาจากด้านบน จับคู่ไม่ได้และไม่ถูกทำลาย ต้องเคลียร์ขนมข้างใต้ให้กระทงตกลงถึงช่องล่างสุดของคอลัมน์ ได้ +100 คะแนนต่อชิ้น</li><li><b>ผสม</b> เช่น เก็บขนม + สร้างขนมพิเศษ, กระทง + เก็บขนม, หรือเก็บขนม + ทุบน้ำแข็ง ต้องทำครบทุกข้อ</li><li><b>จับเวลา</b> ไม่จำกัดตาเดิน แต่มีเวลานับถอยหลัง (นาฬิกาหยุดเมื่อเปิดหน้าต่างเมนู) เวลาที่เหลือแปลงเป็นโบนัส ถ้าเวลาหมดใช้ไอเท็ม +5 ตาเดิน แลกเป็น +15 วินาทีได้</li><li><b>คอมโบ</b> ทำคอมโบต่อเนื่องให้ถึงจำนวนทอดที่กำหนดในตาเดียว ตามจำนวนครั้ง เช่น 4 ทอด × 2 ครั้ง</li></ul><p>ด่านที่ไม่บังคับคะแนนจะมี <b>เป้าดาว</b> แทน (ครึ่งหนึ่งของเป้าคะแนนปกติ) ใช้คิดจำนวนดาวเท่านั้น ด่านเหล่านี้ได้ตาเดินเพิ่มให้ตามความยาก</p>')+
    sec('วิธีเล่น','<ul><li>ปัดหรือแตะขนม 2 ชิ้นที่ติดกันเพื่อสลับตำแหน่ง</li><li>เรียงขนมชนิดเดียวกัน 3 ชิ้นขึ้นไป ทั้งแนวนอนและแนวตั้ง จึงจะหายไป</li><li>ถ้าสลับแล้วไม่เกิดการเรียง ขนมจะกลับที่เดิมและไม่เสียตาเดิน</li><li>ขนมที่หายไปทำให้ขนมด้านบนตกลงมา เกิดคอมโบต่อเนื่อง ได้คะแนนเพิ่ม</li><li>เมื่อไม่มีทางเดินแล้ว เกมจะสับขนมให้เอง</li></ul>')+
    sec('ขนมทั้ง 6 ชนิด','ทับทิมกรอบ (ทรงกลมสีแดง) · มะม่วง (ลูกเต๋าสีเหลือง) · ใบเตย (ขนมชั้นสีเขียว) · อัญชัน (เยลลี่สามเหลี่ยมสีน้ำเงิน) · เผือก (หกเหลี่ยมสีม่วง) · กะทิ (พุดดิ้งสีครีม) ด่านง่ายมี 5 ชนิด ด่านยากมี 6 ชนิด')+
    sec('ขนมพิเศษ (หน้าตาต่างจากขนมธรรมดา)','<ul><li><b>เรียง 4 ชิ้น</b> ได้ขนมลายเส้น มีลูกศรและแถบแสงวิ่ง: เมื่อถูกล้างจะกวาดทั้งแถวหรือทั้งคอลัมน์ตามทิศลูกศร</li><li><b>เรียงรูป L / T / กากบาท</b> ได้ห่อระเบิด มีรัศมีส้มและเข็มหมุน: ล้างพื้นที่ 3×3 รอบตัว</li><li><b>เรียง 5 ชิ้น</b> ได้ลูกชุบสายรุ้ง: สลับกับขนมสีไหน ขนมสีนั้นทั้งกระดานจะหาย</li><li><b>เรียงสี่เหลี่ยม 2×2</b> ได้ปลาตะเพียน: เมื่อถูกล้างจะว่ายพุ่งไปทำลายเป้าหมาย 1 ชิ้น (เลือกก้อนน้ำแข็งก่อน แล้วค่อยขนมพิเศษ)</li></ul>')+
