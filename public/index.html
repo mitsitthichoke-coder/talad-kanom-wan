@@ -19,6 +19,14 @@
 .gq{list-style:none;margin:6px 0 2px;padding:0;display:flex;flex-direction:column;gap:8px}
 .gq li{display:flex;align-items:center;gap:10px}.gq img{width:40px;height:40px;flex:none}
 .gq small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+/* in-game compact layout (phones): free vertical space for the board */
+.stats .goals{grid-column:1/-1;margin-top:0}
+.app.gm{padding-block:6px 10px;gap:6px}.app.gm section{gap:6px}
+.app.gm>.row:not(.spread){display:none}
+.app.gm .titlebox h1{display:none}
+.app.gm .flavors,.app.gm .help,.app.gm .verline{display:none}
+.app.gm .stats{padding:8px 12px;gap:4px 10px}.app.gm .score{font-size:20px}
+.app.gm .tool{padding:5px 2px 3px}.app.gm .goals .gc{padding:2px 8px}
 </style>
 </head>
 <body>
@@ -330,10 +338,10 @@ section{gap:8px}
         <div class="label"><span id="scoreLbl">คะแนน / เป้าหมาย</span> · <span id="shapeName">กระดานสี่เหลี่ยม</span></div>
         <div class="score"><span id="score">0</span> <small>/ <span id="target">0</span></small></div>
         <div class="bar"><i id="bar"></i></div>
-        <div class="goals" id="goalRow" hidden></div>
         <div class="ice" id="iceRow" hidden>❄ ทุบน้ำแข็งให้หมด · เหลือ <b id="iceN">0</b> ช่อง</div>
       </div>
       <div class="moves" id="movesBox"><div class="label">ตาเดิน</div><div class="score" id="moves">0</div></div>
+      <div class="goals" id="goalRow" hidden></div>
     </div>
     <div class="board"><canvas id="cv" aria-label="กระดานเกม"></canvas></div>
     <div class="tools">
@@ -386,8 +394,16 @@ section{gap:8px}
 <script>
 (()=>{
 /*BUILD_START*/const BUILD={
- "ver": "01.0001",
+ "ver": "01.0002",
  "log": [
+  {
+   "v": "01.0002",
+   "d": "2026-10-31",
+   "items": [
+    "\u0e1b\u0e23\u0e31\u0e1a\u0e2b\u0e19\u0e49\u0e32\u0e08\u0e2d\u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e40\u0e25\u0e48\u0e19\u0e43\u0e2b\u0e49\u0e1e\u0e2d\u0e14\u0e35\u0e21\u0e37\u0e2d\u0e16\u0e37\u0e2d: \u0e0b\u0e48\u0e2d\u0e19\u0e41\u0e16\u0e1a\u0e2b\u0e31\u0e27\u0e43\u0e08/\u0e40\u0e2b\u0e23\u0e35\u0e22\u0e0d \u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e01\u0e21 \u0e23\u0e32\u0e22\u0e0a\u0e37\u0e48\u0e2d\u0e23\u0e2a\u0e02\u0e19\u0e21 \u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e0a\u0e48\u0e27\u0e22\u0e40\u0e2b\u0e25\u0e37\u0e2d \u0e41\u0e25\u0e30\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e19\u0e25\u0e48\u0e32\u0e07\u0e2a\u0e38\u0e14\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e15\u0e2d\u0e19\u0e40\u0e25\u0e48\u0e19 \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e43\u0e2b\u0e49\u0e01\u0e23\u0e30\u0e14\u0e32\u0e19\u0e43\u0e2b\u0e0d\u0e48\u0e02\u0e36\u0e49\u0e19",
+    "\u0e22\u0e49\u0e32\u0e22\u0e41\u0e16\u0e1a\u0e40\u0e04\u0e27\u0e2a\u0e41\u0e25\u0e30\u0e1b\u0e38\u0e48\u0e21\u0e04\u0e33\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22\u0e43\u0e2b\u0e49\u0e40\u0e15\u0e47\u0e21\u0e04\u0e27\u0e32\u0e21\u0e01\u0e27\u0e49\u0e32\u0e07\u0e43\u0e15\u0e49\u0e04\u0e30\u0e41\u0e19\u0e19 \u0e44\u0e21\u0e48\u0e1a\u0e35\u0e1a\u0e2d\u0e22\u0e39\u0e48\u0e1d\u0e31\u0e48\u0e07\u0e0b\u0e49\u0e32\u0e22"
+   ]
+  },
   {
    "v": "01.0001",
    "d": "2026-10-31",
@@ -1547,7 +1563,7 @@ function fit(){
   }
 }
 function showScreen(name){
-  screen=name;$('mapScreen').hidden=name!=='map';$('gameScreen').hidden=name!=='game';
+  screen=name;$('appRoot').classList.toggle('gm',name==='game');$('mapScreen').hidden=name!=='map';$('gameScreen').hidden=name!=='game';
   fit();if(name==='game')requestAnimationFrame(()=>{fit();resize()});
 }
 function showMap(climbFrom){
@@ -2043,7 +2059,7 @@ function loop(now){
     const before=save.hearts;syncHearts();
     if(save.hearts>before&&modalName==='nohearts'){closeModal();toast('หัวใจกลับมาแล้ว เล่นต่อได้')}
     updateHUD();const el=$('nhTimer');if(el)el.textContent=heartTimer();}
-  const fk=innerWidth+'x'+innerHeight+screen+($('iceRow').hidden?0:1)+($('goalRow').hidden?0:1)+($('appRoot').hidden?0:1)+(window.visualViewport?Math.round(window.visualViewport.height):0);
+  const fk=innerWidth+'x'+innerHeight+screen+($('iceRow').hidden?0:1)+($('goalRow').offsetHeight)+($('appRoot').hidden?0:1)+(window.visualViewport?Math.round(window.visualViewport.height):0);
   if(fk!==fitKey){fitKey=fk;fit()}
   if(screen==='game'){if(cv.clientWidth&&Math.abs(cv.clientWidth-S)>1)resize();update(dt);render()}
   drawAmb(dt);
