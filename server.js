@@ -415,5 +415,13 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-store.init().then(() => server.listen(PORT, '0.0.0.0', () => console.log('Sweet Market on :' + PORT)))
+// Keep the free Render instance awake: ping our own public URL every 10 minutes.
+// RENDER_EXTERNAL_URL is set by Render automatically (set KEEPALIVE_URL yourself to use it elsewhere).
+function startKeepAlive() {
+  const base = (process.env.RENDER_EXTERNAL_URL || process.env.KEEPALIVE_URL || '').replace(/\/$/, '');
+  if (!base) return;
+  setInterval(() => { fetch(base + '/api/health').catch(() => {}); }, 10 * 60 * 1000);
+  console.log('Keep-alive ping every 10 min ->', base);
+}
+store.init().then(() => server.listen(PORT, '0.0.0.0', () => { console.log('Sweet Market on :' + PORT); startKeepAlive(); }))
   .catch(e => { console.error('DB init failed', e); process.exit(1); });
