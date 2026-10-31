@@ -1,0 +1,43 @@
+name: migrate-db
+
+# One-time copy of the whole database: OLD_DATABASE_URL (Render) -> NEW_DATABASE_URL (Neon).
+# It only READS the old database. Run it from the Actions tab (Run workflow).
+# Secrets needed (Settings > Secrets and variables > Actions): OLD_DATABASE_URL, NEW_DATABASE_URL
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      OLD: ${{ secrets.OLD_DATABASE_URL }}
+      NEW: ${{ secrets.NEW_DATABASE_URL }}
+    steps:
+      - name: Check secrets
+        run: |
+          test -n "$OLD" || { echo "Missing secret OLD_DATABASE_URL"; exit 1; }
+          test -n "$NEW" || { echo "Missing secret NEW_DATABASE_URL"; exit 1; }
+
+      - name: Detect source Postgres version
+        run: |
+          VER=$(docker run --rm postgres:17 psql "$OLD" -tAc "show server_version_num" | tr -d '[:space:]')
+          echo "Source server_version_num = $VER"
+          echo "PGMAJOR=$((VER / 10000))" >> "$GITHUB_ENV"
+
+      - name: Dump old database
+        run: |
+          docker run --rm -v "$PWD:/w" postgres:$PGMAJOR pg_dump "$OLD" -Fc --no-owner --no-acl -f /w/dump.bin
+          ls -l dump.bin
+
+      - name: Restore into new database
+        run: |
+          docker run --rm -v "$PWD:/w" postgres:$PGMAJOR pg_restore --no-owner --no-acl --clean --if-exists -d "$NEW" /w/dump.bin
+
+      - name: Compare row counts (old vs new)
+        run: |
+          cat > counts.sql <<'EOF'
+          select format('select %L as table_name, count(*) from %I', tablename, tablename) from pg_tables where schemaname='public' order by tablename
+          \gexec
+          EOF
+          echo "=== OLD (Render) ==="; docker run --rm -i postgres:$PGMAJOR psql "$OLD" < counts.sql
+          echo "=== NEW (Neon) ===";   docker run --rm -i postgres:$PGMAJOR psql "$NEW" < counts.sql
