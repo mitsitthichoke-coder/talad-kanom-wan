@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 const NAME_RE = /^[\p{L}\p{M}\p{N}_.-]{3,20}$/u;
 const NICK_RE = /^[\p{L}\p{M}\p{N}_. -]{2,16}$/u;
 const MAX_LEVEL = 2000, MAX_BODY = 256 * 1024, MAX_FRIENDS = 100;
+const ONLINE_MS = 2 * 60 * 1000, DAY = 24 * 60 * 60 * 1000;
+const GIFT_COINS = [10, 25, 50], GIFT_ITEMS = ['hammer', 'mortar', 'fan', 'lantern', 'shuffle', 'moves'];
+const GIFT_PER_FRIEND = 5, GIFT_PER_DAY = 20;
 const cmp = (a, b) => b.level - a.level || b.stars - a.stars || a.updated - b.updated || a.id - b.id;
 
 /* ---------------- storage ---------------- */
@@ -19,7 +22,7 @@ function pgStore(url) {
     ssl: /\.render\.com/.test(url) ? { rejectUnauthorized: false } : undefined });
   const q = (t, p) => pool.query(t, p).then(r => r.rows);
   const row = r => r && { id: +r.id, name: r.name, nick: r.nick || null, key: r.key, salt: r.salt, hash: r.hash,
-    level: r.level, stars: r.stars, updated: +r.updated_at, save: r.save };
+    level: r.level, stars: r.stars, updated: +r.updated_at, save: r.save, seen: +r.seen || 0 };
   return {
     async init() {
       await q(`create table if not exists users(
@@ -35,6 +38,15 @@ function pgStore(url) {
       await q('alter table users add column if not exists nick text');
       await q('alter table users add column if not exists nick_key text');
       await q('create unique index if not exists users_nick_key on users(nick_key) where nick_key is not null');
+      await q('alter table users add column if not exists seen bigint not null default 0');
+      await q(`create table if not exists friend_requests(
+        from_id int not null references users(id) on delete cascade,
+        to_id int not null references users(id) on delete cascade, created_at bigint not null, primary key(from_id, to_id))`);
+      await q(`create table if not exists mail(
+        id serial primary key, to_id int not null references users(id) on delete cascade,
+        from_id int references users(id) on delete set null, kind text not null, body jsonb not null default '{}'::jsonb,
+        created_at bigint not null, read boolean not null default false, claimed boolean not null default false)`);
+      await q('create index if not exists mail_to on mail(to_id, id desc)');
     },
     async createUser(u) {
       const r = await q(`insert into users(name,key,salt,hash,level,stars,updated_at,created_at)
@@ -56,7 +68,7 @@ function pgStore(url) {
       await q('update users set save=$2::jsonb, level=$3, stars=$4, updated_at=$5 where id=$1', [id, JSON.stringify(save), level, stars, updated]);
     },
     async top(n) {
-      return (await q('select id,name,nick,level,stars,updated_at from users order by level desc, stars desc, updated_at asc, id asc limit $1', [n])).map(row);
+      return (await q('select id,name,nick,level,stars,updated_at,seen from users order by level desc, stars desc, updated_at asc, id asc limit $1', [n])).map(row);
     },
     async rank(u) {
       const r = await q(`select count(*)+1 as rank from users where level>$1 or (level=$1 and stars>$2)
@@ -64,23 +76,58 @@ function pgStore(url) {
       return +r[0].rank;
     },
     async friends(id) {
-      return (await q(`select u.id,u.name,u.nick,u.level,u.stars,u.updated_at from friends f join users u on u.id=f.friend_id where f.user_id=$1`, [id])).map(row);
+      return (await q(`select u.id,u.name,u.nick,u.level,u.stars,u.updated_at,u.seen from friends f join users u on u.id=f.friend_id where f.user_id=$1`, [id])).map(row);
     },
     async addFriend(id, fid) { await q('insert into friends(user_id,friend_id) values($1,$2) on conflict do nothing', [id, fid]); },
     async delFriend(id, fid) { await q('delete from friends where user_id=$1 and friend_id=$2', [id, fid]); },
+    async hasFriend(id, fid) { return (await q('select 1 from friends where user_id=$1 and friend_id=$2', [id, fid])).length > 0; },
+    async touch(id, now) { await q('update users set seen=$2 where id=$1', [id, now]); },
+    async addRequest(from, to) { await q('insert into friend_requests(from_id,to_id,created_at) values($1,$2,$3) on conflict do nothing', [from, to, Date.now()]); },
+    async delRequest(from, to) { return (await q('delete from friend_requests where from_id=$1 and to_id=$2 returning from_id', [from, to])).length > 0; },
+    async hasRequest(from, to) { return (await q('select 1 from friend_requests where from_id=$1 and to_id=$2', [from, to])).length > 0; },
+    async requestsTo(id) {
+      return (await q(`select u.id,u.name,u.nick,u.level,u.stars,u.updated_at,u.seen,r.created_at as at from friend_requests r
+        join users u on u.id=r.from_id where r.to_id=$1 order by r.created_at desc limit 50`, [id])).map(x => Object.assign(row(x), { at: +x.at }));
+    },
+    async requestsFrom(id) {
+      return (await q(`select u.id,u.name,u.nick,u.level,u.stars,u.updated_at,u.seen from friend_requests r
+        join users u on u.id=r.to_id where r.from_id=$1`, [id])).map(row);
+    },
+    async addMail(to, from, kind, body) {
+      await q('insert into mail(to_id,from_id,kind,body,created_at) values($1,$2,$3,$4::jsonb,$5)', [to, from, kind, JSON.stringify(body), Date.now()]);
+      await q('delete from mail where to_id=$1 and id not in (select id from mail where to_id=$1 order by id desc limit 100)', [to]);
+    },
+    async mailFor(id) {
+      return (await q(`select m.id,m.kind,m.body,m.created_at,m.read,m.claimed,u.name as from_name,u.nick as from_nick
+        from mail m left join users u on u.id=m.from_id where m.to_id=$1 order by m.id desc limit 100`, [id]))
+        .map(x => ({ id: +x.id, kind: x.kind, body: x.body, at: +x.created_at, read: x.read, claimed: x.claimed, fromName: x.from_nick || x.from_name || null }));
+    },
+    async claimMail(id, uid) {
+      const r = await q("update mail set claimed=true, read=true where id=$1 and to_id=$2 and claimed=false and kind='gift' returning body", [id, uid]);
+      return r[0] ? r[0].body : null;
+    },
+    async readMail(id, uid) { await q('update mail set read=true where id=$1 and to_id=$2', [id, uid]); },
+    async delMail(id, uid) { await q("delete from mail where id=$1 and to_id=$2 and (claimed=true or kind<>'gift')", [id, uid]); },
+    async mailUnread(id) {
+      return +(await q("select count(*) c from mail where to_id=$1 and (read=false or (kind='gift' and claimed=false))", [id]))[0].c;
+    },
+    async giftsSince(from, to, since) {
+      return +(await q("select count(*) c from mail where from_id=$1 and ($2::int is null or to_id=$2) and kind='gift' and created_at>$3", [from, to, since]))[0].c;
+    },
   };
 }
 
 function fileStore(file) {
   let d = { seq: 0, users: [], sessions: {}, friends: [] }, t = null;
   try { d = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}
+  d.requests = d.requests || []; d.mail = d.mail || []; d.mailSeq = d.mailSeq || 0;
   const flush = () => { clearTimeout(t); t = setTimeout(() => { try { fs.writeFileSync(file, JSON.stringify(d)); } catch (e) { console.error(e); } }, 300); };
   const byId = id => d.users.find(u => u.id === id) || null;
   return {
     async init() {},
     async createUser(u) {
       if (d.users.some(x => x.key === u.key)) return null;
-      const r = { id: ++d.seq, name: u.name, nick: null, nickKey: null, key: u.key, salt: u.salt, hash: u.hash, level: 1, stars: 0, updated: u.now, save: null };
+      const r = { id: ++d.seq, name: u.name, nick: null, nickKey: null, key: u.key, salt: u.salt, hash: u.hash, level: 1, stars: 0, updated: u.now, save: null, seen: 0 };
       d.users.push(r); flush(); return r.id;
     },
     async userByKey(k) { return d.users.find(u => u.key === k) || null; },
@@ -98,6 +145,33 @@ function fileStore(file) {
     async friends(id) { return d.friends.filter(f => f[0] === id).map(f => byId(f[1])).filter(Boolean); },
     async addFriend(id, fid) { if (!d.friends.some(f => f[0] === id && f[1] === fid)) { d.friends.push([id, fid]); flush(); } },
     async delFriend(id, fid) { d.friends = d.friends.filter(f => !(f[0] === id && f[1] === fid)); flush(); },
+    async hasFriend(id, fid) { return d.friends.some(f => f[0] === id && f[1] === fid); },
+    async touch(id, now) { const u = byId(id); if (u) { u.seen = now; flush(); } },
+    async addRequest(from, to) { if (!d.requests.some(r => r[0] === from && r[1] === to)) { d.requests.push([from, to, Date.now()]); flush(); } },
+    async delRequest(from, to) { const n = d.requests.length; d.requests = d.requests.filter(r => !(r[0] === from && r[1] === to)); flush(); return d.requests.length < n; },
+    async hasRequest(from, to) { return d.requests.some(r => r[0] === from && r[1] === to); },
+    async requestsTo(id) { return d.requests.filter(r => r[1] === id).sort((a, b) => b[2] - a[2]).slice(0, 50).map(r => Object.assign({}, byId(r[0]), { at: r[2] })).filter(x => x.id); },
+    async requestsFrom(id) { return d.requests.filter(r => r[0] === id).map(r => byId(r[1])).filter(Boolean); },
+    async addMail(to, from, kind, body) {
+      d.mail.push({ id: ++d.mailSeq, to, from, kind, body, at: Date.now(), read: false, claimed: false });
+      const mine = d.mail.filter(m => m.to === to).sort((a, b) => b.id - a.id);
+      if (mine.length > 100) { const drop = new Set(mine.slice(100).map(m => m.id)); d.mail = d.mail.filter(m => !drop.has(m.id)); }
+      flush();
+    },
+    async mailFor(id) {
+      return d.mail.filter(m => m.to === id).sort((a, b) => b.id - a.id).slice(0, 100).map(m => {
+        const f = m.from ? byId(m.from) : null;
+        return { id: m.id, kind: m.kind, body: m.body, at: m.at, read: m.read, claimed: m.claimed, fromName: f ? (f.nick || f.name) : null };
+      });
+    },
+    async claimMail(id, uid) {
+      const m = d.mail.find(x => x.id === id && x.to === uid && !x.claimed && x.kind === 'gift');
+      if (!m) return null; m.claimed = true; m.read = true; flush(); return m.body;
+    },
+    async readMail(id, uid) { const m = d.mail.find(x => x.id === id && x.to === uid); if (m) { m.read = true; flush(); } },
+    async delMail(id, uid) { d.mail = d.mail.filter(m => !(m.id === id && m.to === uid && (m.claimed || m.kind !== 'gift'))); flush(); },
+    async mailUnread(id) { return d.mail.filter(m => m.to === id && (!m.read || (m.kind === 'gift' && !m.claimed))).length; },
+    async giftsSince(from, to, since) { return d.mail.filter(m => m.from === from && (to == null || m.to === to) && m.kind === 'gift' && m.at > since).length; },
   };
 }
 
@@ -201,36 +275,108 @@ route('PUT', /^\/api\/save$/, async (req, res, c, u) => {
   send(res, 200, { ok: true });
 }, true);
 
+const isOnline = r => Date.now() - (r.seen || 0) < ONLINE_MS;
+const disp = r => r.nick || r.name;
+
 route('GET', /^\/api\/leaderboard$/, async (req, res, c, u) => {
-  const [top, friends, rank] = await Promise.all([store.top(50), store.friends(u.id), store.rank(u)]);
+  const [top, friends, rank, sent] = await Promise.all([store.top(50), store.friends(u.id), store.rank(u), store.requestsFrom(u.id)]);
   const fset = new Set(friends.map(f => f.id));
-  const disp = r => r.nick || r.name;
-  const pub = (r, rk) => ({ rank: rk, name: disp(r), user: r.name, level: r.level, stars: r.stars, me: r.id === u.id, friend: fset.has(r.id) });
+  const pub = (r, rk) => ({ rank: rk, name: disp(r), user: r.name, level: r.level, stars: r.stars, me: r.id === u.id, friend: fset.has(r.id), online: r.id === u.id || isOnline(r) });
   friends.sort(cmp);
   send(res, 200, {
     top: top.map((r, i) => pub(r, i + 1)),
     me: { rank, name: disp(u), user: u.name, level: u.level, stars: u.stars },
-    friends: friends.map(f => ({ name: disp(f), user: f.name, level: f.level, stars: f.stars })),
+    friends: friends.map(f => ({ name: disp(f), user: f.name, level: f.level, stars: f.stars, online: isOnline(f) })),
     friendsBoard: [...friends, u].sort(cmp).map((r, i) => pub(r, i + 1)),
+    pending: sent.map(r => ({ name: disp(r), user: r.name })),
   });
 }, true);
 
+const findUser = async raw => { const key = String(raw || '').trim().toLowerCase(); return key ? ((await store.userByKey(key)) || (await store.userByNick(key))) : null; };
+const areFriends = async (a, b) => (await store.hasFriend(a, b)) && (await store.hasFriend(b, a));
+
+/* friend request (the other side must accept) */
 route('POST', /^\/api\/friends$/, async (req, res, c, u) => {
-  const key = String(c.body.name || '').trim().toLowerCase();
-  const f = key && ((await store.userByKey(key)) || (await store.userByNick(key)));
+  if (limited(c.ip + ':fr', 60)) return fail(res, 429, 'ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่');
+  const f = await findUser(c.body.name);
   if (!f) return fail(res, 404, 'ไม่พบผู้เล่นชื่อนี้');
   if (f.id === u.id) return fail(res, 400, 'เพิ่มตัวเองเป็นเพื่อนไม่ได้');
+  if (await areFriends(u.id, f.id)) return send(res, 200, { ok: true, status: 'already' });
   if ((await store.friends(u.id)).length >= MAX_FRIENDS) return fail(res, 400, 'เพิ่มเพื่อนได้สูงสุด ' + MAX_FRIENDS + ' คน');
-  await store.addFriend(u.id, f.id);
+  if (await store.hasRequest(f.id, u.id)) {                        // they already asked me: becoming friends right away
+    await store.delRequest(f.id, u.id); await store.addFriend(u.id, f.id); await store.addFriend(f.id, u.id);
+    await store.addMail(f.id, u.id, 'system', { text: disp(u) + ' ตอบรับเป็นเพื่อนของคุณแล้ว' });
+    return send(res, 200, { ok: true, status: 'friends', name: disp(f) });
+  }
+  if (await store.hasRequest(u.id, f.id)) return send(res, 200, { ok: true, status: 'sent', name: disp(f) });
+  await store.addRequest(u.id, f.id);
+  send(res, 200, { ok: true, status: 'sent', name: disp(f) });
+}, true);
+
+route('POST', /^\/api\/friends\/accept$/, async (req, res, c, u) => {
+  const f = await findUser(c.body.user);
+  if (!f || !(await store.delRequest(f.id, u.id))) return fail(res, 404, 'ไม่พบคำขอเป็นเพื่อนนี้ (อาจถูกยกเลิกแล้ว)');
+  if ((await store.friends(u.id)).length >= MAX_FRIENDS) return fail(res, 400, 'เพิ่มเพื่อนได้สูงสุด ' + MAX_FRIENDS + ' คน');
+  await store.addFriend(u.id, f.id); await store.addFriend(f.id, u.id);
+  await store.addMail(f.id, u.id, 'system', { text: disp(u) + ' ตอบรับเป็นเพื่อนของคุณแล้ว' });
+  send(res, 200, { ok: true, name: disp(f) });
+}, true);
+
+route('POST', /^\/api\/friends\/decline$/, async (req, res, c, u) => {
+  const f = await findUser(c.body.user);
+  if (f) await store.delRequest(f.id, u.id);
   send(res, 200, { ok: true });
 }, true);
 
 route('DELETE', /^\/api\/friends\/([^/]+)$/, async (req, res, c, u) => {
-  let key; try { key = decodeURIComponent(c.m[1]).trim().toLowerCase(); } catch (e) { return fail(res, 400, 'ชื่อไม่ถูกต้อง'); }
-  const f = (await store.userByKey(key)) || (await store.userByNick(key));
-  if (f) await store.delFriend(u.id, f.id);
+  let key; try { key = decodeURIComponent(c.m[1]); } catch (e) { return fail(res, 400, 'ชื่อไม่ถูกต้อง'); }
+  const f = await findUser(key);
+  if (f) { await store.delFriend(u.id, f.id); await store.delFriend(f.id, u.id); await store.delRequest(u.id, f.id); await store.delRequest(f.id, u.id); }
   send(res, 200, { ok: true });
 }, true);
+
+/* mailbox: friend requests + letters + gifts */
+route('GET', /^\/api\/mailbox$/, async (req, res, c, u) => {
+  const [reqs, mail] = await Promise.all([store.requestsTo(u.id), store.mailFor(u.id)]);
+  send(res, 200, {
+    requests: reqs.map(r => ({ name: disp(r), user: r.name, level: r.level, online: isOnline(r), at: r.at })),
+    mail: mail.map(m => ({ id: m.id, kind: m.kind, from: m.fromName, at: m.at, read: m.read, claimed: m.claimed,
+      gift: m.kind === 'gift' ? { type: m.body.type, n: m.body.n, item: m.body.item || null } : null, text: String((m.body && (m.body.msg || m.body.text)) || '') })),
+  });
+}, true);
+
+route('GET', /^\/api\/ping$/, async (req, res, c, u) => {
+  const [mail, reqs] = await Promise.all([store.mailUnread(u.id), store.requestsTo(u.id)]);
+  send(res, 200, { mail, requests: reqs.length });
+}, true);
+
+route('POST', /^\/api\/mail\/send$/, async (req, res, c, u) => {
+  if (limited(c.ip + ':gift', 80)) return fail(res, 429, 'ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่');
+  const f = await findUser(c.body.user);
+  if (!f || f.id === u.id) return fail(res, 404, 'ไม่พบเพื่อนคนนี้');
+  if (!(await areFriends(u.id, f.id))) return fail(res, 403, 'ส่งของขวัญให้ได้เฉพาะเพื่อนที่ตอบรับแล้ว');
+  const g = c.body.gift || {}, type = String(g.type || ''), n = Math.floor(+g.n || 1);
+  let gift = null;
+  if (type === 'heart' && n === 1) gift = { type, n: 1 };
+  else if (type === 'coin' && GIFT_COINS.includes(n)) gift = { type, n };
+  else if (type === 'item' && n === 1 && GIFT_ITEMS.includes(g.item)) gift = { type, n: 1, item: g.item };
+  if (!gift) return fail(res, 400, 'ของขวัญไม่ถูกต้อง');
+  const msg = String(c.body.msg || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+  const since = Date.now() - DAY;
+  if ((await store.giftsSince(u.id, f.id, since)) >= GIFT_PER_FRIEND) return fail(res, 429, 'วันนี้ส่งให้เพื่อนคนนี้ครบ ' + GIFT_PER_FRIEND + ' ชิ้นแล้ว พรุ่งนี้ส่งใหม่ได้');
+  if ((await store.giftsSince(u.id, null, since)) >= GIFT_PER_DAY) return fail(res, 429, 'วันนี้ส่งของขวัญครบ ' + GIFT_PER_DAY + ' ชิ้นแล้ว');
+  await store.addMail(f.id, u.id, 'gift', Object.assign(gift, msg ? { msg } : {}));
+  send(res, 200, { ok: true, name: disp(f) });
+}, true);
+
+route('POST', /^\/api\/mail\/(\d+)\/claim$/, async (req, res, c, u) => {
+  const g = await store.claimMail(+c.m[1], u.id);
+  if (!g) return fail(res, 404, 'รับของขวัญนี้ไปแล้วหรือไม่พบจดหมาย');
+  send(res, 200, { ok: true, gift: { type: g.type, n: g.n, item: g.item || null } });
+}, true);
+
+route('POST', /^\/api\/mail\/(\d+)\/read$/, async (req, res, c, u) => { await store.readMail(+c.m[1], u.id); send(res, 200, { ok: true }); }, true);
+route('DELETE', /^\/api\/mail\/(\d+)$/, async (req, res, c, u) => { await store.delMail(+c.m[1], u.id); send(res, 200, { ok: true }); }, true);
 
 route('GET', /^\/api\/health$/, async (req, res) => send(res, 200, { ok: true }));
 
@@ -250,6 +396,8 @@ const server = http.createServer(async (req, res) => {
         if (authed) {
           const t = tokenOf(req); u = t && await store.userBySession(sha(t));
           if (!u) return fail(res, 401, 'กรุณาเข้าสู่ระบบ');
+          const now = Date.now();
+          if (now - (u.seen || 0) > 20000) { u.seen = now; store.touch(u.id, now).catch(() => {}); }
         }
         return await fn(req, res, c, u);
       }
