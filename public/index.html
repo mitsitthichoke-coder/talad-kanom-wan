@@ -386,8 +386,22 @@ section{gap:8px}
 <script>
 (()=>{
 /*BUILD_START*/const BUILD={
- "ver": "01.02.0006",
+ "ver": "01.0001",
  "log": [
+  {
+   "v": "01.0001",
+   "d": "2026-10-31",
+   "items": [
+    "\u0e40\u0e23\u0e34\u0e48\u0e21\u0e19\u0e31\u0e1a\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e19\u0e43\u0e2b\u0e21\u0e48\u0e43\u0e19\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a 00.0000: \u0e40\u0e25\u0e02 2 \u0e15\u0e31\u0e27\u0e2b\u0e19\u0e49\u0e32 = \u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e02\u0e19\u0e32\u0e14\u0e43\u0e2b\u0e0d\u0e48, \u0e40\u0e25\u0e02 4 \u0e15\u0e31\u0e27\u0e2b\u0e25\u0e31\u0e07 = \u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e02\u0e19\u0e32\u0e14\u0e40\u0e25\u0e47\u0e01"
+   ]
+  },
+  {
+   "v": "01.02.0007",
+   "d": "2026-10-31",
+   "items": [
+    "\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e0a\u0e37\u0e48\u0e2d\u0e1b\u0e38\u0e48\u0e21\u0e43\u0e15\u0e49\u0e0a\u0e48\u0e2d\u0e07\u0e04\u0e30\u0e41\u0e19\u0e19\u0e08\u0e32\u0e01 \u0e02\u0e19\u0e21\u0e04\u0e37\u0e2d\u0e23\u0e39\u0e1b\u0e44\u0e2b\u0e19 \u0e40\u0e1b\u0e47\u0e19 \u0e04\u0e33\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22"
+   ]
+  },
   {
    "v": "01.02.0006",
    "d": "2026-10-31",
@@ -771,7 +785,7 @@ function renderGoals(){
   el.hidden=false;
   const chip=(ic,txt,val,ok)=>'<span class="gc'+(ok?' ok':'')+'"><img src="'+itemIcon(ic,44)+'" alt=""> '+txt+' <b>'+val+'</b></span>';
   const q=(GL.length||hasIce)?'<span class="gl">หรือทำเควส:</span>'+GL.map(g=>{const ok=g.have>=g.need;return chip(goalKey(g),goalShort(g),ok?'✓':g.have+'/'+g.need,ok)}).join('')+(hasIce?chip('ice','น้ำแข็ง',il?'เหลือ '+il:'✓',!il):''):'';
-  el.innerHTML=q+'<span class="gc lg">❓ ขนมคือรูปไหน</span>';
+  el.innerHTML=q+'<span class="gc lg">❓ คำอธิบาย</span>';
 }
 $('goalRow').addEventListener('click',e=>{if(e.target.closest('.lg'))showLegend()});
 /* drop-down objective: krathong tiles (t=-3) never match and are never destroyed; they fall to the bottom of their column */
