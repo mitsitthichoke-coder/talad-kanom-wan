@@ -1,8 +1,7 @@
 'use strict';
-// Version bumper for ตลาดขนมหวาน. Version format: MM.mm.bbbb  (e.g. 01.00.0001)
-//   node bump.js "ข้อความอัปเดต" "ข้อความที่สอง"   -> build +1 and add a patch-note entry
-//   node bump.js --minor "..."                      -> minor +1, build reset to 0001
-//   node bump.js --major "..."                      -> major +1, minor 00, build 0001
+// Version bumper for ตลาดขนมหวาน. Version format: MM.bbbb  (e.g. 01.0001)
+//   MM   (2 digits) = big update   -> node bump.js --major "..."  (MM +1, bbbb reset to 0001)
+//   bbbb (4 digits) = small update -> node bump.js "..."          (bbbb +1) and add a patch-note entry
 //   node bump.js --watch                            -> auto-bump the build number every time public/index.html is saved
 // The version and patch notes live in public/index.html between the BUILD_START and BUILD_END markers.
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
@@ -12,6 +11,7 @@ const pad = (n, w) => String(n).padStart(w, '0');
 const args = process.argv.slice(2);
 const flag = f => args.includes(f);
 const notes = args.filter(a => !a.startsWith('--'));
+if (flag('--minor')) { console.error('ไม่มี --minor แล้ว: ใช้ --major สำหรับอัปเดตใหญ่ (เลข 2 ตัวหน้า) หรือไม่ใส่ flag สำหรับอัปเดตเล็ก (เลข 4 ตัวหลัง)'); process.exit(1); }
 
 function readBuild(src) {
   const m = RE.exec(src);
@@ -19,9 +19,10 @@ function readBuild(src) {
   return JSON.parse(m[1]);
 }
 function nextVer(v, kind) {
-  let [a, b, c] = v.split('.').map(Number);
-  if (kind === 'major') { a++; b = 0; c = 1; } else if (kind === 'minor') { b++; c = 1; } else c++;
-  return pad(a, 2) + '.' + pad(b, 2) + '.' + pad(c, 4);
+  const p = v.split('.').map(Number);
+  let a = p[0], b = p.length >= 3 ? p[2] : p[1];   // also accepts the old MM.mm.bbbb format
+  if (kind === 'major') { a++; b = 1; } else b++;
+  return pad(a, 2) + '.' + pad(b, 4);
 }
 const stripBuild = src => src.replace(RE, '');
 function bump(kind, items, auto) {
@@ -51,5 +52,5 @@ if (flag('--watch')) {
     }, 400);
   });
 } else {
-  console.log('Ver ' + bump(flag('--major') ? 'major' : flag('--minor') ? 'minor' : 'build', notes, false));
+  console.log('Ver ' + bump(flag('--major') ? 'major' : 'build', notes, false));
 }
