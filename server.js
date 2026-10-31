@@ -19,7 +19,9 @@ const cmp = (a, b) => b.level - a.level || b.stars - a.stars || a.updated - b.up
 function pgStore(url) {
   const { Pool } = require('pg');
   const pool = new Pool({ connectionString: url, max: 5,
-    ssl: /\.render\.com/.test(url) ? { rejectUnauthorized: false } : undefined });
+    ssl: /\.render\.com|\.neon\.tech/.test(url) ? { rejectUnauthorized: false } : undefined });
+  // Neon (and Render) may close idle connections; without this handler an idle-client error would crash the server.
+  pool.on('error', e => console.warn('[pg] idle client error:', e.message));
   const q = (t, p) => pool.query(t, p).then(r => r.rows);
   const row = r => r && { id: +r.id, name: r.name, nick: r.nick || null, key: r.key, salt: r.salt, hash: r.hash,
     level: r.level, stars: r.stars, updated: +r.updated_at, save: r.save, seen: +r.seen || 0 };

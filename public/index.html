@@ -27,6 +27,24 @@
 .app.gm .flavors,.app.gm .help,.app.gm .verline{display:none}
 .app.gm .stats{padding:8px 12px;gap:4px 10px}.app.gm .score{font-size:20px}
 .app.gm .tool{padding:5px 2px 3px}.app.gm .goals .gc{padding:2px 8px}
+.hg .flip{transform-origin:50px 65px;animation:hgflip 3.6s ease-in-out infinite}
+.hg .sandT{transform-box:fill-box;transform-origin:50% 100%;animation:hgtop 3.6s linear infinite}
+.hg .sandB{transform-box:fill-box;transform-origin:50% 100%;animation:hgbot 3.6s linear infinite}
+.hg .stream{stroke-dasharray:3 5;animation:hgstream .5s linear infinite,hgsv 3.6s linear infinite}
+.hg .spark{transform-box:fill-box;transform-origin:center;animation:hgtw 1.6s ease-in-out infinite}
+@keyframes hgflip{0%,84%{transform:rotate(0)}100%{transform:rotate(180deg)}}
+@keyframes hgtop{0%{transform:scaleY(1)}80%,100%{transform:scaleY(0)}}
+@keyframes hgbot{0%{transform:scaleY(0)}80%,100%{transform:scaleY(1)}}
+@keyframes hgstream{to{stroke-dashoffset:-8}}
+@keyframes hgsv{0%,78%{opacity:1}82%,100%{opacity:0}}
+@keyframes hgtw{0%,100%{opacity:.25;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.hg .flip,.hg .sandT,.hg .sandB,.hg .stream,.hg .spark{animation-duration:12s}}
+.wakeov{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:24px;background:rgba(255,236,244,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.wakeov[hidden]{display:none}
+.wakebox{background:#fff;border:3px solid #ffd3e3;border-radius:28px;padding:20px 26px 18px;text-align:center;box-shadow:0 16px 40px rgba(220,100,150,.28);max-width:320px;font-family:inherit}
+.wakebox .hg{width:120px;height:156px;display:block;margin:0 auto 6px;overflow:visible}
+.wakebox .wt{font-size:18px;font-weight:700;color:#c2476f}.wakebox .ws{margin-top:4px;font-size:16px;font-weight:700;color:#e0709a}
+.wakebox .wn{margin-top:10px;font-size:12px;line-height:1.5;color:#9a7b88}
 </style>
 </head>
 <body>
@@ -297,6 +315,24 @@ section{gap:8px}
 </style>
 
 <canvas id="bg" aria-hidden="true"></canvas>
+<div class="wakeov" id="wakeOv" hidden role="alert" aria-live="polite"><div class="wakebox"><svg class="hg" viewBox="0 0 100 130" aria-hidden="true">
+<defs><clipPath id="hgc"><path d="M24 10H76V16C76 34 58 46 58 65C58 84 76 96 76 114V120H24V114C24 96 42 84 42 65C42 46 24 34 24 16Z"/></clipPath></defs>
+<path class="spark" style="animation-delay:0s" d="M12 24l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffc857"/>
+<path class="spark" style="animation-delay:.5s" d="M88 38l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#ff8fb3"/>
+<path class="spark" style="animation-delay:1s" d="M86 100l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#9fd8ff"/>
+<g class="flip">
+<path d="M24 10H76V16C76 34 58 46 58 65C58 84 76 96 76 114V120H24V114C24 96 42 84 42 65C42 46 24 34 24 16Z" fill="#fff6fa"/>
+<g clip-path="url(#hgc)"><rect class="sandT" x="20" y="24" width="60" height="41" fill="#ffc857"/><rect class="sandB" x="20" y="66" width="60" height="54" fill="#ffc857"/>
+<line class="stream" x1="50" y1="64" x2="50" y2="112" stroke="#ffc857" stroke-width="2.4" stroke-linecap="round"/></g>
+<path d="M24 10H76V16C76 34 58 46 58 65C58 84 76 96 76 114V120H24V114C24 96 42 84 42 65C42 46 24 34 24 16Z" fill="none" stroke="#f07aa3" stroke-width="4.5" stroke-linejoin="round"/>
+<rect x="17" y="3" width="66" height="10" rx="5" fill="#ff8fb3"/><rect x="17" y="117" width="66" height="10" rx="5" fill="#ff8fb3"/>
+</g>
+<circle cx="44" cy="92" r="2.2" fill="#6b3a4e"/><circle cx="56" cy="92" r="2.2" fill="#6b3a4e"/>
+<path d="M46 97Q50 101.5 54 97" fill="none" stroke="#6b3a4e" stroke-width="1.8" stroke-linecap="round"/>
+<ellipse cx="40" cy="96.5" rx="3" ry="2" fill="#ff7fa6" opacity=".6"/><ellipse cx="60" cy="96.5" rx="3" ry="2" fill="#ff7fa6" opacity=".6"/>
+</svg>
+<div class="wt">กรุณารอสักครู่ กำลังโหลด</div><div class="ws">อย่าเพิ่งปิดนะ</div>
+<div class="wn">เซิร์ฟเวอร์กำลังตื่นจากการพัก อาจใช้เวลาประมาณ 1 นาที<br>รอมาแล้ว <b id="wakeSec">0</b> วินาที</div></div></div>
 <div class="app" id="appRoot" hidden>
   <div class="row spread">
     <div class="titlebox"><h1>ตลาดขนมหวาน</h1><div class="who"><span id="whoami" role="button" tabindex="0" title="แตะเพื่อเปลี่ยนชื่อ"></span><button class="ver" id="verBtn" type="button" title="ดูรายละเอียดการอัปเดต"></button></div></div>
@@ -394,8 +430,15 @@ section{gap:8px}
 <script>
 (()=>{
 /*BUILD_START*/const BUILD={
- "ver": "01.0002",
+ "ver": "01.0003",
  "log": [
+  {
+   "v": "01.0003",
+   "d": "2026-10-31",
+   "items": [
+    "\u0e2b\u0e19\u0e49\u0e32\u0e08\u0e2d\u0e23\u0e2d\u0e42\u0e2b\u0e25\u0e14\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e40\u0e0b\u0e34\u0e23\u0e4c\u0e1f\u0e40\u0e27\u0e2d\u0e23\u0e4c Render \u0e01\u0e33\u0e25\u0e31\u0e07\u0e15\u0e37\u0e48\u0e19: \u0e02\u0e36\u0e49\u0e19\u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e2d\u0e2a\u0e31\u0e01\u0e04\u0e23\u0e39\u0e48 \u0e01\u0e33\u0e25\u0e31\u0e07\u0e42\u0e2b\u0e25\u0e14 \u0e2d\u0e22\u0e48\u0e32\u0e40\u0e1e\u0e34\u0e48\u0e07\u0e1b\u0e34\u0e14 \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e19\u0e32\u0e2c\u0e34\u0e01\u0e32\u0e17\u0e23\u0e32\u0e22\u0e2b\u0e21\u0e38\u0e19\u0e19\u0e48\u0e32\u0e23\u0e31\u0e01\u0e46 \u0e41\u0e25\u0e30\u0e15\u0e31\u0e27\u0e19\u0e31\u0e1a\u0e27\u0e34\u0e19\u0e32\u0e17\u0e35 \u0e08\u0e30\u0e02\u0e36\u0e49\u0e19\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e23\u0e2d\u0e40\u0e01\u0e34\u0e19 1.5 \u0e27\u0e34\u0e19\u0e32\u0e17\u0e35 \u0e41\u0e25\u0e30\u0e2b\u0e32\u0e22\u0e40\u0e2d\u0e07\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e40\u0e0b\u0e34\u0e23\u0e4c\u0e1f\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e15\u0e2d\u0e1a"
+   ]
+  },
   {
    "v": "01.0002",
    "d": "2026-10-31",
@@ -2075,8 +2118,14 @@ const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 let token=lsGet(TOKEN_KEY),userName='',started=false,authMode='login',authBusy=false;
 let nickName='',friendsCache=[],myRank=null,boardAt=0,bootT=0,boardData=null,boardTab='all';
 
+let slowN=0,slowOn=false,slowT0=0,slowTick=0;
+function wakeShow(){if(slowOn)return;slowOn=true;slowT0=Date.now();$('wakeSec').textContent='0';$('wakeOv').hidden=false;slowTick=setInterval(()=>{$('wakeSec').textContent=Math.floor((Date.now()-slowT0)/1000)},500)}
+function wakeHide(){slowOn=false;clearInterval(slowTick);$('wakeOv').hidden=true}
 async function api(path,opt={}){
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),opt.timeout||80000);
+  /* a request that is still waiting after 1.5s (server asleep on Render) shows the loading screen; background pings/saves stay silent */
+  const quiet=!!opt.keepalive||path==='/api/ping'||(path==='/api/save'&&opt.method==='PUT');let st=0;
+  if(!quiet){slowN++;st=setTimeout(wakeShow,1500)}
   try{
     const r=await fetch(path,{method:opt.method||'GET',signal:ctl.signal,keepalive:!!opt.keepalive,
       headers:Object.assign({'Content-Type':'application/json'},token?{Authorization:'Bearer '+token}:{}),
@@ -2084,7 +2133,7 @@ async function api(path,opt={}){
     let data=null;try{data=await r.json()}catch(e){}
     return {ok:r.ok,status:r.status,data:data||{}};
   }catch(e){return {ok:false,status:0,data:{error:'network'}}}
-  finally{clearTimeout(to)}
+  finally{clearTimeout(to);if(!quiet){clearTimeout(st);if(--slowN<=0){slowN=0;wakeHide()}}}
 }
 async function pushSave(keepalive){
   if(!token||!SAVE_KEY||pushing||!dirty)return;

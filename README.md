@@ -44,8 +44,15 @@
 - API ใหม่: `POST /api/friends` (ส่งคำขอ), `/api/friends/accept`, `/api/friends/decline`, `GET /api/mailbox`, `GET /api/ping`, `POST /api/mail/send`, `POST /api/mail/:id/claim`, `POST /api/mail/:id/read`, `DELETE /api/mail/:id`
 - เพื่อนเดิมที่เพิ่มไว้ก่อนมีระบบตอบรับ (เป็นเพื่อนฝั่งเดียว) จะยังเห็นอยู่ แต่ส่งของขวัญได้เมื่อเป็นเพื่อนกันทั้งสองฝั่งเท่านั้น
 
-## Render หลับ (แพ็กเกจฟรี) และหน้าจอรอโหลด
-- ถ้าผู้เล่นเปิดเกมค้างไว้แล้วเซิร์ฟเวอร์หลับ ตอนกดล็อกอินหรือเรียกข้อมูล เกมจะขึ้นหน้า "กรุณารอสักครู่ กำลังโหลด อย่าเพิ่งปิด" พร้อมนาฬิกาทราย เมื่อรอเกิน 1.5 วินาที แล้วหายเองเมื่อเซิร์ฟเวอร์ตอบ
-- ตอนเปิดลิงก์เกมครั้งแรกขณะเซิร์ฟเวอร์หลับ หน้าเกมยังไม่ถูกส่ง เกมจึงแสดงอะไรเองไม่ได้ แก้ได้ 2 ทาง:
-  1. เอา `wake.html` ไปไว้ที่ที่ไม่หลับ (GitHub Pages หรือ Render Static Site) แล้วแจกลิงก์นั้นแทน ไฟล์นี้จะแสดงนาฬิกาทรายและรอจนเซิร์ฟเวอร์ตื่นแล้วพาเข้าเกมเอง (แก้ `GAME_URL` ในไฟล์ให้เป็นที่อยู่ Render ของคุณ)
-  2. ใช้บริการ ping เช่น UptimeRobot ยิง `/api/health` ทุก 5–10 นาที เพื่อไม่ให้หลับ
+## กันเซิร์ฟเวอร์หลับ (Render แพ็กเกจฟรี)
+- `server.js` ยิง `/api/health` ใส่ตัวเองทุก 10 นาที (ใช้ตัวแปร `RENDER_EXTERNAL_URL` ที่ Render ตั้งให้เอง)
+- `.github/workflows/keepalive.yml` ให้ GitHub ยิงปลุกทุก 10 นาทีเป็นตัวสำรอง (แก้ `GAME_URL` ในไฟล์ให้เป็นที่อยู่ Render ของคุณ)
+
+## ย้ายฐานข้อมูลไป Neon (Postgres ฟรีของ Render หมดอายุ 30 วัน)
+1. สมัคร neon.com สร้างโปรเจกต์ (เลือกเวอร์ชัน Postgres ไม่ต่ำกว่าฐานข้อมูล Render เดิม) แล้วคัดลอก connection string
+2. GitHub → Settings → Secrets and variables → Actions → เพิ่ม Secret 2 ตัว: `OLD_DATABASE_URL` (External Database URL จากหน้า Postgres บน Render) และ `NEW_DATABASE_URL` (จาก Neon)
+3. อัปโหลด `server.js` ตัวใหม่ และ `.github/workflows/migrate-db.yml` แล้วเปิดแท็บ Actions → migrate-db → Run workflow
+4. ดูท้ายล็อก ตารางและจำนวนแถวของ OLD กับ NEW ต้องตรงกัน (ขั้นตอนนี้อ่านฐานข้อมูลเดิมอย่างเดียว ไม่ลบอะไร)
+5. Render → เว็บเซิร์ฟเวอร์ → Environment → แก้ `DATABASE_URL` เป็น connection string ของ Neon (ถ้ามีข้อความ `channel_binding=require` ต่อท้าย และเชื่อมต่อไม่ได้ ให้ตัดส่วนนั้นออก) แล้วรอดีพลอยใหม่
+6. ทดสอบล็อกอินในเกม ยืนยันว่าเซฟยังอยู่ แล้วค่อยลบฐานข้อมูลเก่า (หรือปล่อยให้หมดอายุเอง)
+- `render.neon.yaml` ใช้หลังย้ายเสร็จเท่านั้น: ลบ `render.yaml` เดิม แล้วเปลี่ยนชื่อไฟล์นี้เป็น `render.yaml` (ไม่มีส่วนฐานข้อมูล และ `DATABASE_URL` ตั้งเองในแดชบอร์ด)

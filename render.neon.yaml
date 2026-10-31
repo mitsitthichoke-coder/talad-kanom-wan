@@ -1,0 +1,12 @@
+# Use this version only AFTER the data has been migrated to Neon (see README).
+services:
+  - type: web
+    name: sweet-market
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false   # paste your Neon connection string in the Render dashboard
