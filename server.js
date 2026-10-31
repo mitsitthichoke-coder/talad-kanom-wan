@@ -64,17 +64,17 @@ function pgStore(url) {
     async createUser(u) {
       const r = await q(`insert into users(name,key,salt,hash,level,stars,updated_at,created_at)
         values($1,$2,$3,$4,1,0,$5,$5) on conflict (key) do nothing returning id`, [u.name, u.key, u.salt, u.hash, u.now]);
-      return r[0] ? +r[0].id : null;
+      return r ? +r.id : null;
     },
-    async userByKey(k) { return row((await q('select * from users where key=$1', [k]))[0]); },
-    async userByNick(k) { return row((await q('select * from users where nick_key=$1', [k]))[0]); },
+    async userByKey(k) { return row((await q('select * from users where key=$1', [k]))); },
+    async userByNick(k) { return row((await q('select * from users where nick_key=$1', [k]))); },
     async setNick(id, nick, key) {
-      try { return !!(await q('update users set nick=$2, nick_key=$3 where id=$1 returning id', [id, nick, key]))[0]; }
+      try { return !!(await q('update users set nick=$2, nick_key=$3 where id=$1 returning id', [id, nick, key])); }
       catch (e) { if (e && e.code === '23505') return false; throw e; }
     },
     async addSession(h, id) { await q('insert into sessions(token_hash,user_id,created_at) values($1,$2,$3)', [h, id, Date.now()]); },
     async userBySession(h) {
-      return row((await q('select u.* from sessions s join users u on u.id=s.user_id where s.token_hash=$1', [h]))[0]);
+      return row((await q('select u.* from sessions s join users u on u.id=s.user_id where s.token_hash=$1', [h])));
     },
     async delSession(h) { await q('delete from sessions where token_hash=$1', [h]); },
     async setSave(id, save, level, stars, updated) {
@@ -86,7 +86,7 @@ function pgStore(url) {
     async rank(u) {
       const r = await q(`select count(*)+1 as rank from users where level>$1 or (level=$1 and stars>$2)
         or (level=$1 and stars=$2 and (updated_at<$3 or (updated_at=$3 and id<$4)))`, [u.level, u.stars, u.updated, u.id]);
-      return +r[0].rank;
+      return +r.rank;
     },
     async friends(id) {
       return (await q(`select u.id,u.name,u.nick,u.level,u.stars,u.updated_at,u.seen from friends f join users u on u.id=f.friend_id where f.user_id=$1`, [id])).map(row);
@@ -117,7 +117,7 @@ function pgStore(url) {
     },
     async claimMail(id, uid) {
       const r = await q("update mail set claimed=true, read=true where id=$1 and to_id=$2 and claimed=false and kind='gift' returning body", [id, uid]);
-      return r[0] ? r[0].body : null;
+      return r ? r.body : null;
     },
     async readMail(id, uid) { await q('update mail set read=true where id=$1 and to_id=$2', [id, uid]); },
     async delMail(id, uid) { await q("delete from mail where id=$1 and to_id=$2", [id, uid]); }
